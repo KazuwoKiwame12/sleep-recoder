@@ -24,7 +24,7 @@ Resources:
             Method: GET
       Environment:
         Variables:
-          PARAM1: VALUE
+          CHANNEL_ACCESS_TOKEN: HELLO
   BedinTimeFnction:
     Type: AWS::Serverless::Function
     Properties:
@@ -43,16 +43,23 @@ Resources:
         Variables:
           DYNAMODB_ENDPOINT: http://dynamodb:8000
           DYNAMODB_TABLE_NAME: SleepRecord
-  UserDynamoDBTable:
-    Type: AWS::Serverless::SimpleTable
+  SleepRecordDynamoDBTable:
+    Type: AWS::DynamoDB::Table
     Properties:
-      TableName: SleepRecord
-      PrimaryKey:
-        Name: Date
-        Type: String
+      AttributeDefinitions:
+      - AttributeName: Date
+        AttributeType: String
+      - AttributeName": UserID
+        AttributeType: String
+      KeySchema:
+      - AttributeName: Date
+        KeyType: HASH
+      - AttributeName: UserID
+        KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
+      TableName: SleepRecord
 Outputs:
   HelloWorldAPI:
     Description: API Gateway endpoint URL for Prod environment for First Function
