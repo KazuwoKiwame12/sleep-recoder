@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'sleep-recorder
+
+  Sample SAM Template for sleep-recorder
+
+  '
+Globals:
+  Function:
+    Timeout: 5
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: HelloWorldFunction
+      Handler: hello-world
+      Runtime: go1.x
+      Tracing: Active
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: GET
+      Environment:
+        Variables:
+          PARAM1: VALUE
+  BedinTimeFnction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: BedinTimeFnction
+      Handler: bedint-time
+      Runtime: go1.x
+      Tracing: Active
+      Policies: AmazonDynamoDBFullAccess
+      Events:
+        Save:
+          Type: Api
+          Properties:
+            Path: /bedin-time/{user_id}
+            Method: POST
+      Environment:
+        Variables:
+          DYNAMODB_ENDPOINT: http://dynamodb:8000
+          DYNAMODB_TABLE_NAME: SleepRecord
+  UserDynamoDBTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: SleepRecord
+      PrimaryKey:
+        Name: Date
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+Outputs:
+  HelloWorldAPI:
+    Description: API Gateway endpoint URL for Prod environment for First Function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
+  HelloWorldFunction:
+    Description: First Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - HelloWorldFunction
+      - Arn
+  HelloWorldFunctionIamRole:
+    Description: Implicit IAM Role created for Hello World function
+    Value:
+      Fn::GetAtt:
+      - HelloWorldFunctionRole
+      - Arn
