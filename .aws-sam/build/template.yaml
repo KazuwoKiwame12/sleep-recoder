@@ -9,28 +9,6 @@ Globals:
   Function:
     Timeout: 5
 Resources:
-  ApiGatewayApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: ApiGateway-Api
-      StageName: Prod
-      Auth:
-        DefaultAuthorizaer: MyLambdaTokenAuthorizer
-        Authorizers:
-          MyLambdaTokenAuthorizer:
-            FunctionArn:
-              Fn::GetAtt:
-              - AuthFunction
-              - Arn
-  AuthFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: AuthFunction
-      Handler: authorizer
-      Runtime: go1.x
-      Environment:
-        Variables:
-          CHANNEL_ACCESS_TOKEN: HELLO
   BedinTimeFnction:
     Type: AWS::Serverless::Function
     Properties:
@@ -43,8 +21,6 @@ Resources:
         Save:
           Type: Api
           Properties:
-            RestApiId:
-              Ref: ApiGatewayApi
             Path: /bedin-time/{user_id}
             Method: POST
       Environment:

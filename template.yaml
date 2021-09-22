@@ -11,25 +11,25 @@ Globals:
     Timeout: 5
 
 Resources:
-  ApiGatewayApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: ApiGateway-Api
-      StageName: Prod
-      Auth:
-        DefaultAuthorizaer: MyLambdaTokenAuthorizer
-        Authorizers:
-          MyLambdaTokenAuthorizer:
-            FunctionArn: !GetAtt AuthFunction.Arn
-  AuthFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: authorizer/
-      Handler: authorizer
-      Runtime: go1.x
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
-        Variables:
-          CHANNEL_ACCESS_TOKEN: HELLO 
+  # ApiGatewayApi:
+  #   Type: AWS::Serverless::Api
+  #   Properties:
+  #     Name: ApiGateway-Api
+  #     StageName: Prod
+  #     Auth:
+  #       DefaultAuthorizaer: MyLambdaTokenAuthorizer
+  #       Authorizers:
+  #         MyLambdaTokenAuthorizer:
+  #           FunctionArn: !GetAtt AuthFunction.Arn
+  # AuthFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: authorizer/
+  #     Handler: authorizer
+  #     Runtime: go1.x
+  #     Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+  #       Variables:
+  #         CHANNEL_ACCESS_TOKEN: HELLO 
   BedinTimeFnction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -42,7 +42,7 @@ Resources:
         Save:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            RestApiId: !Ref ApiGatewayApi
+            # RestApiId: !Ref ApiGatewayApi
             Path: /bedin-time/{user_id}
             Method: POST
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object

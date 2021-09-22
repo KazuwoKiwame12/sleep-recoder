@@ -8,11 +8,4 @@ source_md5 = ""
 packagetype = "Zip"
 functions = ["BedinTimeFnction"]
 
-[function_build_definitions.a0a487ae-26ff-494a-be43-3fa5b7349b03]
-codeuri = "/Users/kazu.saito/Desktop/repository/sleep-recorder/authorizer"
-runtime = "go1.x"
-source_md5 = ""
-packagetype = "Zip"
-functions = ["AuthFunction"]
-
 [layer_build_definitions]
