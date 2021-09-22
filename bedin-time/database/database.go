@@ -16,7 +16,7 @@ type SleepRecord struct {
 	UserID   string    `json:"user_id"`
 	TimeS    time.Time `json:"tim_s"`
 	TimeW    time.Time `json:"tim_w"`
-	Duration float32   `json:"duration"`
+	Duration float64   `json:"duration"`
 }
 
 type Client struct {
@@ -31,7 +31,7 @@ func NewClient(session *session.Session, config *aws.Config) *Client {
 }
 
 func (c *Client) SaveSleepTime(userID string) error {
-	now := time.Now()
+	now := time.Now().In(time.UTC)
 	var day int = now.Day()
 	if now.Hour() >= TimeStartSleep {
 		day += 1
