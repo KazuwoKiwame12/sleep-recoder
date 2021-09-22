@@ -8,4 +8,11 @@ source_md5 = ""
 packagetype = "Zip"
 functions = ["BedinTimeFnction"]
 
+[function_build_definitions.cc44e13b-f72d-491f-b301-d6e9b479e04a]
+codeuri = "/Users/kazu.saito/Desktop/repository/sleep-recorder/wake-time"
+runtime = "go1.x"
+source_md5 = ""
+packagetype = "Zip"
+functions = ["WakeTimeFnction"]
+
 [layer_build_definitions]
