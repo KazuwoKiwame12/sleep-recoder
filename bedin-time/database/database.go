@@ -9,8 +9,6 @@ import (
 	"github.com/guregu/dynamo"
 )
 
-const TimeStartSleep = 22
-
 type SleepRecord struct {
 	Date     time.Time `json:"date"`
 	UserID   string    `json:"user_id"`
@@ -30,21 +28,28 @@ func NewClient(session *session.Session, config *aws.Config) *Client {
 	}
 }
 
-func (c *Client) SaveSleepTime(userID string) error {
-	now := time.Now().In(time.UTC)
-	var day int = now.Day()
-	if now.Hour() >= TimeStartSleep {
-		day += 1
-	}
+func (c *Client) SaveSleepTime(now time.Time, userID string) error {
 	sr := SleepRecord{
-		Date:   createDate(now.Year(), int(now.Month()), day),
+		Date:   c.createDate(now.Year(), int(now.Month()), c.getCorrectDayWithHour(now.Day(), now.Hour())),
 		UserID: userID,
 		TimeS:  now,
 	}
-	err := c.Table.Put(sr).Run()
-	return err
+	return c.Table.Put(sr).Run()
 }
 
-func createDate(y, m, d int) time.Time {
-	return time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC)
+func (c *Client) getCorrectDayWithHour(day, hour int) int {
+	const (
+		TimeStartSleep      = 22
+		TimeLatestHourInDay = 23
+	)
+
+	if TimeLatestHourInDay >= hour && hour >= TimeStartSleep {
+		day += 1
+	}
+	return day
+}
+
+func (c *Client) createDate(y, m, d int) time.Time {
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	return time.Date(y, time.Month(m), d, 0, 0, 0, 0, jst)
 }
