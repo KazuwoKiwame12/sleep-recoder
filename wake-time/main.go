@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"time"
 
 	"wake-time/database"
 
@@ -20,7 +21,9 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	sess := session.Must(session.NewSession())
 	config := aws.NewConfig().WithRegion("ap-northeast-3").WithEndpoint(os.Getenv("DYNAMODB_ENDPOINT"))
 	client := database.NewClient(sess, config)
-	err := client.SaveWakeTime(userID)
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	now := time.Now().In(jst)
+	err := client.SaveWakeTime(now, userID)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}

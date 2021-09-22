@@ -28,9 +28,8 @@ func NewClient(session *session.Session, config *aws.Config) *Client {
 	}
 }
 
-func (c *Client) SaveWakeTime(userID string) error {
-	now := time.Now().In(time.UTC)
-	targetDate := createDate(now.Year(), int(now.Month()), now.Day())
+func (c *Client) SaveWakeTime(now time.Time, userID string) error {
+	targetDate := c.createDate(now.Year(), int(now.Month()), now.Day())
 	var sr SleepRecord
 	if err := c.Table.Get("Date", targetDate).Range("UserID", dynamo.Equal, userID).One(&sr); err != nil {
 		return err
@@ -43,6 +42,7 @@ func (c *Client) SaveWakeTime(userID string) error {
 	return err
 }
 
-func createDate(y, m, d int) time.Time {
-	return time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC)
+func (c *Client) createDate(y, m, d int) time.Time {
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	return time.Date(y, time.Month(m), d, 0, 0, 0, 0, jst)
 }
