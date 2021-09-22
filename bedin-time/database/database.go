@@ -12,8 +12,8 @@ import (
 type SleepRecord struct {
 	Date     time.Time `json:"date"`
 	UserID   string    `json:"user_id"`
-	TimeS    time.Time `json:"tim_s"`
-	TimeW    time.Time `json:"tim_w"`
+	TimeS    int64     `json:"tim_s"`
+	TimeW    int64     `json:"tim_w"`
 	Duration float64   `json:"duration"`
 }
 
@@ -32,7 +32,7 @@ func (c *Client) SaveSleepTime(now time.Time, userID string) error {
 	sr := SleepRecord{
 		Date:   c.createDate(now.Year(), int(now.Month()), c.getCorrectDayWithHour(now.Day(), now.Hour())),
 		UserID: userID,
-		TimeS:  now,
+		TimeS:  now.Unix(),
 	}
 	return c.Table.Put(sr).Run()
 }

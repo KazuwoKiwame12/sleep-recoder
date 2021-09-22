@@ -12,8 +12,8 @@ import (
 type SleepRecord struct {
 	Date     time.Time `json:"date"`
 	UserID   string    `json:"user_id"`
-	TimeS    time.Time `json:"tim_s"`
-	TimeW    time.Time `json:"tim_w"`
+	TimeS    int64     `json:"tim_s"`
+	TimeW    int64     `json:"tim_w"`
 	Duration float64   `json:"duration"`
 }
 
@@ -35,9 +35,10 @@ func (c *Client) SaveWakeTime(now time.Time, userID string) error {
 		return err
 	}
 
-	diff := now.Sub(sr.TimeS).Hours()
+	timeS := time.Unix(sr.TimeS, 0)
+	diff := now.Sub(timeS).Hours()
 	sr.Duration = diff
-	sr.TimeW = now
+	sr.TimeW = now.Unix()
 	err := c.Table.Put(sr).Run()
 	return err
 }
