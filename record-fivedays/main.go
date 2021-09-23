@@ -2,10 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"fivedays-record/database"
-	"fmt"
 	"net/http"
 	"os"
+	"record-fivedays/database"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -25,8 +24,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	now := time.Now().In(jst)
 	past := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, jst).AddDate(0, 0, -4)
-	rcs, err := client.GetFIveDaysRecord(past, userID)
-	fmt.Printf("rcs: %v\n", rcs)
+	rcs, err := client.Get(past, userID)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}

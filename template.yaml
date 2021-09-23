@@ -68,11 +68,11 @@ Resources:
         Variables:
           DYNAMODB_ENDPOINT: "http://dynamodb:8000"
           DYNAMODB_TABLE_NAME: SleepRecord
-  FivedaysRecordFnction:
+  RecordFivedaysFnction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: fivedays-record/
-      Handler: fivedays-record
+      CodeUri: record-fivedays/
+      Handler: record-fivedays
       Runtime: go1.x
       Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
       Policies: AmazonDynamoDBFullAccess
