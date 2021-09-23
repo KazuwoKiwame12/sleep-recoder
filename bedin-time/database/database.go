@@ -1,7 +1,7 @@
 package database
 
 import (
-	"bedin/utility"
+	"bedin-time/utility"
 	"os"
 	"time"
 

@@ -1,4 +1,4 @@
-module bedin
+module bedin-time
 
 go 1.17
 

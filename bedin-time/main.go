@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"bedin/database"
-	"bedin/utility"
+	"bedin-time/database"
+	"bedin-time/utility"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
