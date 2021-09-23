@@ -23,7 +23,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	client := database.NewClient(sess, config)
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	now := time.Now().In(jst)
-	err := client.SaveWakeTime(now, userID)
+	err := client.Save(now, userID)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}

@@ -3,6 +3,7 @@ package database
 import (
 	"os"
 	"time"
+	"wake-time/utility"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -12,8 +13,8 @@ import (
 type SleepRecord struct {
 	Date     time.Time `json:"date"`
 	UserID   string    `json:"user_id"`
-	TimeS    int64     `json:"tim_s"`
-	TimeW    int64     `json:"tim_w"`
+	TimeB    int64     `json:"tim_bedin"`
+	TimeW    int64     `json:"tim_wake"`
 	Duration float64   `json:"duration"`
 }
 
@@ -28,22 +29,17 @@ func NewClient(session *session.Session, config *aws.Config) *Client {
 	}
 }
 
-func (c *Client) SaveWakeTime(now time.Time, userID string) error {
-	targetDate := c.createDate(now.Year(), int(now.Month()), now.Day())
+func (c *Client) Save(now time.Time, userID string) error {
+	targetDate := utility.CreateDate(now.Year(), int(now.Month()), now.Day())
 	var sr SleepRecord
 	if err := c.Table.Get("Date", targetDate).Range("UserID", dynamo.Equal, userID).One(&sr); err != nil {
 		return err
 	}
 
-	timeS := time.Unix(sr.TimeS, 0)
-	diff := now.Sub(timeS).Hours()
+	bedinTime := time.Unix(sr.TimeB, 0)
+	diff := now.Sub(bedinTime).Hours()
 	sr.Duration = diff
 	sr.TimeW = now.Unix()
 	err := c.Table.Put(sr).Run()
 	return err
-}
-
-func (c *Client) createDate(y, m, d int) time.Time {
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	return time.Date(y, time.Month(m), d, 0, 0, 0, 0, jst)
 }
