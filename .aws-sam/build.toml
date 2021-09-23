@@ -15,11 +15,11 @@ source_md5 = ""
 packagetype = "Zip"
 functions = ["WakeTimeFnction"]
 
-[function_build_definitions.42c60b56-29f7-4020-a0ff-f1eb4d0ff45c]
-codeuri = "/Users/kazu.saito/Desktop/repository/sleep-recorder/fivedays-record"
+[function_build_definitions.926075e7-4b08-4b65-b7a9-c72f8dd09caf]
+codeuri = "/Users/kazu.saito/Desktop/repository/sleep-recorder/record-fivedays"
 runtime = "go1.x"
 source_md5 = ""
 packagetype = "Zip"
-functions = ["FivedaysRecordFnction"]
+functions = ["RecordFivedaysFnction"]
 
 [layer_build_definitions]
