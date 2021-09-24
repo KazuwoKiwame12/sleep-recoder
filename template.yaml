@@ -11,60 +11,47 @@ Globals:
     Timeout: 5
 
 Resources:
-  BedinTimeFnction:
+  SleepManagerFnction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: bedin-time/
-      Handler: bedin-time
+      CodeUri: sleep-manager/
+      Handler: sleep-manager
       Runtime: go1.x
       Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
       Policies: AmazonDynamoDBFullAccess
       Events:
-        Save:
+        ExecRequest:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /bedin-time/{user_id}
+            Path: /sleep-manager
             Method: POST
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           DYNAMODB_ENDPOINT: "http://dynamodb:8000"
           DYNAMODB_TABLE_NAME: SleepRecord
-  WakeTimeFnction:
+          LINE_CHANNEL_SECRET: ""
+          LINE_CHANNEL_ACCESS_TOKEN: ""
+  NotifyFnction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: wake-time/
-      Handler: wake-time
+      CodeUri: notify/
+      Handler: notify
       Runtime: go1.x
       Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
       Policies: AmazonDynamoDBFullAccess
       Events:
-        Save:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        NotifySchedule:
+          Type: Schedule
           Properties:
-            Path: /wake-time/{user_id}
-            Method: POST
+            Schedule: 'cron(0 23 ? * MON *)'
+            Name: NotifySchedule
+            Description: notify abut weekly sleep record data to user
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           DYNAMODB_ENDPOINT: "http://dynamodb:8000"
           DYNAMODB_TABLE_NAME: SleepRecord
-  RecordFivedaysFnction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: record-fivedays/
-      Handler: record-fivedays
-      Runtime: go1.x
-      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
-      Policies: AmazonDynamoDBFullAccess
-      Events:
-        Save:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /{user_id}/record/fivedays
-            Method: GET
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
-        Variables:
-          DYNAMODB_ENDPOINT: "http://dynamodb:8000"
-          DYNAMODB_TABLE_NAME: SleepRecord
+          LINE_CHANNEL_SECRET: ""
+          LINE_CHANNEL_ACCESS_TOKEN: ""  
   SleepRecordDynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -91,11 +78,11 @@ Outputs:
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   BedinTimeAPI:
-    Description: "API Gateway endpoint URL for Prod environment for BedinTime Fnction"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/bedin-time/{user_id}"
-  BedinTimeFnction:
-    Description: "BedinTimeFnction ARN"
-    Value: !GetAtt BedinTimeFnction.Arn
-  BedinTimeFnctionIamRole:
-    Description: "Implicit IAM Role created for BedinTime Fnction"
-    Value: !GetAtt BedinTimeFnctionRole.Arn
+    Description: "API Gateway endpoint URL for Prod environment for SleepManager Fnction"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/sleep-manager"
+  SleepManagerFnction:
+    Description: "SleepManagerFnction ARN"
+    Value: !GetAtt SleepManagerFnction.Arn
+  SleepManagerFnctionIamRole:
+    Description: "Implicit IAM Role created for SleepManager Fnction"
+    Value: !GetAtt SleepManagerFnctionRole.Arn
