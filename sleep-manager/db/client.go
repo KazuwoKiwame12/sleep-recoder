@@ -1,7 +1,6 @@
 package db
 
 import (
-	"os"
 	"sleep-manager/entity"
 	"sleep-manager/utility"
 	"time"
@@ -15,10 +14,10 @@ type SleepRecordClient struct {
 	Table dynamo.Table
 }
 
-func NewSleepRecordClient(session *session.Session, config *aws.Config) *SleepRecordClient {
+func NewSleepRecordClient(tableName string, session *session.Session, config *aws.Config) *SleepRecordClient {
 	db := dynamo.New(session, config)
 	return &SleepRecordClient{
-		Table: db.Table(os.Getenv("DYNAMODB_TABLE_NAME")),
+		Table: db.Table(tableName),
 	}
 }
 
@@ -32,6 +31,7 @@ func (s *SleepRecordClient) SaveWakeTime(now time.Time, userID string) error {
 	bedinTime := time.Unix(sr.TimeB, 0)
 	diff := now.Sub(bedinTime).Hours()
 	sr.Duration = diff
+	sr.AdjustDuration()
 	sr.TimeW = now.Unix()
 	err := s.Table.Put(sr).Run()
 	return err

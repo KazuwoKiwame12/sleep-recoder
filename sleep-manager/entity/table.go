@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"math"
+	"time"
+)
 
 type SleepRecord struct {
 	Date     time.Time `json:"date"`
@@ -8,4 +11,8 @@ type SleepRecord struct {
 	TimeB    int64     `json:"time_bedin"`
 	TimeW    int64     `json:"time_wake"`
 	Duration float64   `json:"duration"`
+}
+
+func (s *SleepRecord) AdjustDuration() {
+	s.Duration = math.Round(s.Duration*10) / 10
 }

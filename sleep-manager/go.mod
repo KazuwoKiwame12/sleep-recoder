@@ -14,5 +14,6 @@ require (
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 )
