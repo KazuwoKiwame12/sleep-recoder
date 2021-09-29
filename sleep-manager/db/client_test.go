@@ -150,7 +150,70 @@ func TestSaveBedinTime(t *testing.T) {
 }
 
 func TestListInFivedays(t *testing.T) {
+	c := getClient()
+	now := utility.CreateDateWIthJst()
+	userID := "sample"
+	var sixDays []time.Time = make([]time.Time, 6)
+	var want []entity.SleepRecord = make([]entity.SleepRecord, 5)
+	for i := 0; i < len(sixDays); i++ {
+		date := now.AddDate(0, 0, -1*i)
+		sixDays[i] = utility.CreateStartDate(date.Year(), date.Month(), utility.GetCorrectDayWithHour(date.Day(), date.Hour()))
+		item := entity.SleepRecord{
+			Date:     sixDays[i],
+			UserID:   userID,
+			TimeB:    date.Add(-7 * time.Hour).Unix(),
+			TimeW:    date.Unix(),
+			Duration: date.Sub(date.Add(-7 * time.Hour)).Hours(),
+		}
+		item.AdjustDuration()
+		if err := c.Table.Put(item).Run(); err != nil {
+			t.Error(err)
+		}
+		if i != len(sixDays)-1 {
+			want[i] = item
+		}
+	}
 
+	data := []struct {
+		name  string
+		input struct {
+			now    time.Time
+			userID string
+		}
+		want []entity.SleepRecord
+	}{
+		{
+			name: "success",
+			input: struct {
+				now    time.Time
+				userID string
+			}{
+				now:    now,
+				userID: userID,
+			},
+			want: want,
+		},
+	}
+
+	for i, d := range data {
+		t.Run(fmt.Sprintf("%d: %s", i, d.name), func(t *testing.T) {
+			srs, err := c.ListInFivedays(d.input.now, d.input.userID)
+			if err != nil {
+				t.Error(err)
+			}
+			for i, sr := range srs {
+				if !isSameSleepRecord(sr, d.want[i], t) {
+					t.Errorf("error: get-data is %v, but want is %v", sr, d.want)
+				}
+			}
+		})
+	}
+
+	for _, date := range sixDays {
+		if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
+			t.Error(err)
+		}
+	}
 }
 
 func TestListInMonth(t *testing.T) {
