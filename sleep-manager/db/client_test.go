@@ -19,7 +19,7 @@ import (
 
 func TestSaveWakeTime(t *testing.T) {
 	c := getClient()
-	wakeTime := time.Now()
+	wakeTime := utility.CreateDateWIthJst()
 	bedinTime := wakeTime.Add(-8 * time.Hour)
 	userID := "sample"
 	date := utility.CreateStartDate(wakeTime.Year(), wakeTime.Month(), utility.GetCorrectDayWithHour(wakeTime.Day(), wakeTime.Hour()))
@@ -30,7 +30,7 @@ func TestSaveWakeTime(t *testing.T) {
 			TimeB:  bedinTime.Unix(),
 		},
 	).Run(); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
 	data := []struct {
@@ -89,6 +89,10 @@ func TestSaveWakeTime(t *testing.T) {
 				t.Errorf("error: get-data is %v, but want is %v", sr, d.want)
 			}
 		})
+	}
+
+	if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
+		t.Error(err)
 	}
 }
 
