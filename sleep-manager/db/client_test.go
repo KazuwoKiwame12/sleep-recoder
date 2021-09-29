@@ -217,7 +217,68 @@ func TestListInFivedays(t *testing.T) {
 }
 
 func TestListInMonth(t *testing.T) {
+	c := getClient()
+	now := time.Now()
+	from := utility.CreateStartDate(now.Year(), now.Month(), 1)
+	to := from.AddDate(0, 1, 0)
+	userID := "sample"
 
+	var want []entity.SleepRecord = make([]entity.SleepRecord, int(to.Sub(from).Hours())/24)
+	for i := from; i.Before(to); i.AddDate(0, 0, 1) {
+		item := entity.SleepRecord{
+			Date:     i,
+			UserID:   userID,
+			TimeB:    i.Add(-7 * time.Hour).Unix(),
+			TimeW:    i.Unix(),
+			Duration: i.Sub(i.Add(-7 * time.Hour)).Hours(),
+		}
+		item.AdjustDuration()
+		if err := c.Table.Put(item).Run(); err != nil {
+			t.Error(err)
+		}
+		want[i.Day()-1] = item
+	}
+
+	data := []struct {
+		name  string
+		input struct {
+			now    time.Time
+			userID string
+		}
+		want []entity.SleepRecord
+	}{
+		{
+			name: "success",
+			input: struct {
+				now    time.Time
+				userID string
+			}{
+				now:    now,
+				userID: userID,
+			},
+			want: want,
+		},
+	}
+
+	for i, d := range data {
+		t.Run(fmt.Sprintf("%d: %s", i, d.name), func(t *testing.T) {
+			srs, err := c.ListInMonth(d.input.now.Year(), d.input.now.Month(), d.input.userID)
+			if err != nil {
+				t.Error(err)
+			}
+			for i, sr := range srs {
+				if !isSameSleepRecord(sr, d.want[i], t) {
+					t.Errorf("error: get-data is %v, but want is %v", sr, d.want)
+				}
+			}
+		})
+	}
+
+	for i := from; i.Before(to); i.AddDate(0, 0, 1) {
+		if err := c.Table.Delete("Date", i).Range("UserID", userID).Run(); err != nil {
+			t.Error(err)
+		}
+	}
 }
 
 func getClient() *db.SleepRecordClient {
