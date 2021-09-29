@@ -97,7 +97,56 @@ func TestSaveWakeTime(t *testing.T) {
 }
 
 func TestSaveBedinTime(t *testing.T) {
+	c := getClient()
+	bedinTime := utility.CreateDateWIthJst()
+	userID := "sample"
+	date := utility.CreateStartDate(bedinTime.Year(), bedinTime.Month(), utility.GetCorrectDayWithHour(bedinTime.Day(), bedinTime.Hour()))
 
+	data := []struct {
+		name  string
+		date  time.Time
+		input struct {
+			now    time.Time
+			userID string
+		}
+		want entity.SleepRecord
+	}{
+		{
+			name: "success",
+			date: date,
+			input: struct {
+				now    time.Time
+				userID string
+			}{
+				now:    bedinTime,
+				userID: userID,
+			},
+			want: entity.SleepRecord{
+				Date:   date,
+				UserID: userID,
+				TimeB:  bedinTime.Unix(),
+			},
+		},
+	}
+
+	for i, d := range data {
+		t.Run(fmt.Sprintf("%d: %s", i, d.name), func(t *testing.T) {
+			if err := c.SaveBedinTime(d.input.now, d.input.userID); err != nil {
+				t.Error(err)
+			}
+			var sr entity.SleepRecord
+			if err := c.Table.Get("Date", d.date).Range("UserID", dynamo.Equal, d.input.userID).One(&sr); err != nil {
+				t.Error(err)
+			}
+			if !isSameSleepRecord(sr, d.want, t) {
+				t.Errorf("error: get-data is %v, but want is %v", sr, d.want)
+			}
+		})
+	}
+
+	if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
+		t.Error(err)
+	}
 }
 
 func TestListInFivedays(t *testing.T) {
