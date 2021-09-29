@@ -32,6 +32,11 @@ func TestSaveWakeTime(t *testing.T) {
 	).Run(); err != nil {
 		t.Error(err)
 	}
+	t.Cleanup(func() {
+		if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
+			t.Error(err)
+		}
+	})
 
 	data := []struct {
 		name  string
@@ -90,10 +95,6 @@ func TestSaveWakeTime(t *testing.T) {
 			}
 		})
 	}
-
-	if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
-		t.Error(err)
-	}
 }
 
 func TestSaveBedinTime(t *testing.T) {
@@ -101,6 +102,11 @@ func TestSaveBedinTime(t *testing.T) {
 	bedinTime := utility.CreateDateWIthJst()
 	userID := "sample"
 	date := utility.CreateStartDate(bedinTime.Year(), bedinTime.Month(), utility.GetCorrectDayWithHour(bedinTime.Day(), bedinTime.Hour()))
+	t.Cleanup(func() {
+		if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
+			t.Error(err)
+		}
+	})
 
 	data := []struct {
 		name  string
@@ -143,10 +149,6 @@ func TestSaveBedinTime(t *testing.T) {
 			}
 		})
 	}
-
-	if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
-		t.Error(err)
-	}
 }
 
 func TestListInFivedays(t *testing.T) {
@@ -173,6 +175,14 @@ func TestListInFivedays(t *testing.T) {
 			want[i] = item
 		}
 	}
+
+	t.Cleanup(func() {
+		for _, date := range sixDays {
+			if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
+				t.Error(err)
+			}
+		}
+	})
 
 	data := []struct {
 		name  string
@@ -208,12 +218,6 @@ func TestListInFivedays(t *testing.T) {
 			}
 		})
 	}
-
-	for _, date := range sixDays {
-		if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
-			t.Error(err)
-		}
-	}
 }
 
 func TestListInMonth(t *testing.T) {
@@ -222,7 +226,6 @@ func TestListInMonth(t *testing.T) {
 	from := utility.CreateStartDate(now.Year(), now.Month(), 1)
 	to := from.AddDate(0, 1, 0)
 	userID := "sample"
-
 	var want []entity.SleepRecord = make([]entity.SleepRecord, int(to.Sub(from).Hours())/24)
 	for i := from; i.Before(to); i.AddDate(0, 0, 1) {
 		item := entity.SleepRecord{
@@ -238,6 +241,14 @@ func TestListInMonth(t *testing.T) {
 		}
 		want[i.Day()-1] = item
 	}
+
+	t.Cleanup(func() {
+		for i := from; i.Before(to); i.AddDate(0, 0, 1) {
+			if err := c.Table.Delete("Date", i).Range("UserID", userID).Run(); err != nil {
+				t.Error(err)
+			}
+		}
+	})
 
 	data := []struct {
 		name  string
@@ -272,12 +283,6 @@ func TestListInMonth(t *testing.T) {
 				}
 			}
 		})
-	}
-
-	for i := from; i.Before(to); i.AddDate(0, 0, 1) {
-		if err := c.Table.Delete("Date", i).Range("UserID", userID).Run(); err != nil {
-			t.Error(err)
-		}
 	}
 }
 
