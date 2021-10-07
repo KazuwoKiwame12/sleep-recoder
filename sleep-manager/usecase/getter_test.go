@@ -71,8 +71,8 @@ func TestListRecordsInFiveDays(t *testing.T) {
 		},
 	}
 
-	for i, test := range tests {
-		t.Run(fmt.Sprintf("%d: %s", i, test.name), func(t *testing.T) {
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
 			mock := test.setup()
 			g := &usecase.Getter{C: mock}
 			result, err := g.ListRecordsInFiveDays(userID)
@@ -143,8 +143,8 @@ func TestListRecordsInMonth(t *testing.T) {
 		},
 	}
 
-	for i, test := range tests {
-		t.Run(fmt.Sprintf("%d: %s", i, test.name), func(t *testing.T) {
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
 			mock := test.setup()
 			g := &usecase.Getter{C: mock}
 			result, err := g.ListRecordsInMonth(nowJst.Year(), nowJst.Month(), userID)
@@ -214,8 +214,8 @@ func TestEvaluateSleep(t *testing.T) {
 		},
 	}
 
-	for i, test := range tests {
-		t.Run(fmt.Sprintf("%d: %s", i, test.name), func(t *testing.T) {
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
 			result := usecase.ExEvaluateSleep(nil, test.input.bedinTime, test.input.wakeTime)
 			if result != test.want.ConvertToResponse() {
 				t.Errorf("unmatched error: result is %s, want is %s", result, test.want.ConvertToResponse())

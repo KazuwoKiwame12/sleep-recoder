@@ -38,7 +38,7 @@ func TestSaveWakeTime(t *testing.T) {
 		}
 	})
 
-	data := []struct {
+	tests := []struct {
 		name  string
 		date  time.Time
 		input struct {
@@ -77,21 +77,21 @@ func TestSaveWakeTime(t *testing.T) {
 		},
 	}
 
-	for i, d := range data {
-		t.Run(fmt.Sprintf("%d: %s", i, d.name), func(t *testing.T) {
-			if err := c.SaveWakeTime(d.input.now, d.input.userID); err != nil {
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if err := c.SaveWakeTime(test.input.now, test.input.userID); err != nil {
 				empty := entity.SleepRecord{}
-				if d.want == empty {
+				if test.want == empty {
 					return
 				}
 				t.Error(err)
 			}
 			var sr entity.SleepRecord
-			if err := c.Table.Get("Date", d.date).Range("UserID", dynamo.Equal, d.input.userID).One(&sr); err != nil {
+			if err := c.Table.Get("Date", test.date).Range("UserID", dynamo.Equal, test.input.userID).One(&sr); err != nil {
 				t.Error(err)
 			}
-			if !isSameSleepRecord(sr, d.want, t) {
-				t.Errorf("error: get-data is %v, but want is %v", sr, d.want)
+			if !isSameSleepRecord(sr, test.want, t) {
+				t.Errorf("error: get-data is %v, but want is %v", sr, test.want)
 			}
 		})
 	}
@@ -108,7 +108,7 @@ func TestSaveBedinTime(t *testing.T) {
 		}
 	})
 
-	data := []struct {
+	tests := []struct {
 		name  string
 		date  time.Time
 		input struct {
@@ -135,17 +135,17 @@ func TestSaveBedinTime(t *testing.T) {
 		},
 	}
 
-	for i, d := range data {
-		t.Run(fmt.Sprintf("%d: %s", i, d.name), func(t *testing.T) {
-			if err := c.SaveBedinTime(d.input.now, d.input.userID); err != nil {
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if err := c.SaveBedinTime(test.input.now, test.input.userID); err != nil {
 				t.Error(err)
 			}
 			var sr entity.SleepRecord
-			if err := c.Table.Get("Date", d.date).Range("UserID", dynamo.Equal, d.input.userID).One(&sr); err != nil {
+			if err := c.Table.Get("Date", test.date).Range("UserID", dynamo.Equal, test.input.userID).One(&sr); err != nil {
 				t.Error(err)
 			}
-			if !isSameSleepRecord(sr, d.want, t) {
-				t.Errorf("error: get-data is %v, but want is %v", sr, d.want)
+			if !isSameSleepRecord(sr, test.want, t) {
+				t.Errorf("error: get-data is %v, but want is %v", sr, test.want)
 			}
 		})
 	}
@@ -184,7 +184,7 @@ func TestListInFivedays(t *testing.T) {
 		}
 	})
 
-	data := []struct {
+	tests := []struct {
 		name  string
 		input struct {
 			now    time.Time
@@ -205,15 +205,15 @@ func TestListInFivedays(t *testing.T) {
 		},
 	}
 
-	for i, d := range data {
-		t.Run(fmt.Sprintf("%d: %s", i, d.name), func(t *testing.T) {
-			srs, err := c.ListInFivedays(d.input.now, d.input.userID)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			srs, err := c.ListInFivedays(test.input.now, test.input.userID)
 			if err != nil {
 				t.Error(err)
 			}
 			for i, sr := range srs {
-				if !isSameSleepRecord(sr, d.want[i], t) {
-					t.Errorf("error: get-data is %v, but want is %v", sr, d.want)
+				if !isSameSleepRecord(sr, test.want[i], t) {
+					t.Errorf("error: get-data is %v, but want is %v", sr, test.want)
 				}
 			}
 		})
@@ -250,7 +250,7 @@ func TestListInMonth(t *testing.T) {
 		}
 	})
 
-	data := []struct {
+	tests := []struct {
 		name  string
 		input struct {
 			now    time.Time
@@ -271,15 +271,15 @@ func TestListInMonth(t *testing.T) {
 		},
 	}
 
-	for i, d := range data {
-		t.Run(fmt.Sprintf("%d: %s", i, d.name), func(t *testing.T) {
-			srs, err := c.ListInMonth(d.input.now.Year(), d.input.now.Month(), d.input.userID)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			srs, err := c.ListInMonth(test.input.now.Year(), test.input.now.Month(), test.input.userID)
 			if err != nil {
 				t.Error(err)
 			}
 			for i, sr := range srs {
-				if !isSameSleepRecord(sr, d.want[i], t) {
-					t.Errorf("error: get-data is %v, but want is %v", sr, d.want)
+				if !isSameSleepRecord(sr, test.want[i], t) {
+					t.Errorf("error: get-data is %v, but want is %v", sr, test.want)
 				}
 			}
 		})

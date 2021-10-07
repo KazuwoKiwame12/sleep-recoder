@@ -1,7 +1,6 @@
 package entity_test
 
 import (
-	"fmt"
 	"sleep-manager/entity"
 	"testing"
 )
@@ -17,7 +16,7 @@ func TestAdjustDuration(t *testing.T) {
 }
 
 func TestConvertToResponse(t *testing.T) {
-	data := []struct {
+	tests := []struct {
 		name  string
 		input entity.Evaluation
 		want  string
@@ -49,11 +48,11 @@ func TestConvertToResponse(t *testing.T) {
 		},
 	}
 
-	for i, d := range data {
-		t.Run(fmt.Sprintf("%d: %s", i, d.name), func(t *testing.T) {
-			result := d.input.ConvertToResponse()
-			if result != d.want {
-				t.Errorf("error: result = %v, want = %v", result, d.want)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := test.input.ConvertToResponse()
+			if result != test.want {
+				t.Errorf("error: result = %v, want = %v", result, test.want)
 			}
 		})
 	}
