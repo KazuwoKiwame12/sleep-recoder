@@ -25,7 +25,7 @@ const (
 	最後に"3"は、毎週月曜日の夜9時に1週間分の睡眠記録の遷移グラフの画像が送信されます。
 	`
 	MessageDefault string = `
-	アプリの使い方は"help"を送信することで得られます。\n
+	アプリの使い方は"説明"を送信することで得られます。\n
 	使い方概要...以下の文字を送信すると以下の機能が実行される\n
 	\t睡眠時刻を記録: "眠る"\n
 	\t起床時刻を記録: "起きた"\n
@@ -44,6 +44,7 @@ const (
 	CommandWake
 	CommandFiveDays
 	CommandMonth
+	CommandHelp
 	CommandDefault
 )
 
@@ -53,6 +54,9 @@ func ValidateCommand(com string) Command {
 	}
 	if com == "起きた" {
 		return CommandWake
+	}
+	if com == "説明" {
+		return CommandHelp
 	}
 	if regexp.MustCompile(`取得.*`).MatchString(com) {
 		slice := strings.Split(com, " ")
