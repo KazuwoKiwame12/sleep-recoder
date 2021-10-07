@@ -88,16 +88,19 @@ func (g *Getter) evaluateSleep(bedin, wake time.Time) string {
 		}
 		return h
 	}
-	hourB := coordinateHour(bedin.Hour())
+	hourB := bedin.Hour()
 	hourW := wake.Hour()
 
+	// 1時以降の睡眠の場合
 	if TimeHavetoBedin <= hourB && hourB < TimeEarliestBedin {
 		evaluation -= 1
 	}
+	// 起床時間が8時以上
 	if hourW > TimeWantWake {
 		evaluation -= 1
 	}
-	if hourW-hourB != IdealSleepDuration {
+	// 睡眠時間が7時間ではない
+	if hourW-coordinateHour(hourB) != IdealSleepDuration {
 		evaluation -= 1
 	}
 
