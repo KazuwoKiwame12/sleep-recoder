@@ -1,7 +1,6 @@
 package utility
 
 import (
-	"errors"
 	"time"
 )
 
@@ -30,7 +29,7 @@ func GetCorrectDayWithHour(day, hour int) int {
 
 func ValidateBedintime(hour int) error {
 	if TimeEarliestBedin > hour && hour >= TimeAlwaysAwake {
-		return errors.New("TimeError: you don't sleep in p.m 0 ~ p.m 9")
+		return ErrorBedinTime
 	}
 	return nil
 }

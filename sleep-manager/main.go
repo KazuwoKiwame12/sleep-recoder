@@ -118,47 +118,50 @@ func execCommand(i input) string {
 	switch utility.ValidateCommand(i.command) {
 	case utility.CommandBedin:
 		if err := i.setter.SaveBedinTime(i.userID); err != nil {
-			return utility.MessageError
+			if err == utility.ErrorBedinTime {
+				return utility.MessageBedinTimeError
+			}
+			return utility.MessageSystemError
 		}
 		return utility.MessageSuccessRecord
 	case utility.CommandWake:
 		if err := i.setter.SaveWakeTime(i.userID); err != nil {
-			return utility.MessageError
+			return utility.MessageSystemError
 		}
 		return utility.MessageSuccessRecord
 	case utility.CommandFiveDays:
 		msg, err := i.getter.ListRecordsInFiveDays(i.userID)
 		if err != nil {
-			return utility.MessageError
+			return utility.MessageSystemError
 		}
 		if len(msg.Record) == 0 {
 			return utility.MessageNotFound
 		}
 		msgJson, err := json.Marshal(&msg)
 		if err != nil {
-			return utility.MessageError
+			return utility.MessageSystemError
 		}
 		return string(msgJson)
 	case utility.CommandMonth:
 		slice := strings.Split(i.command, " ")
 		year, err := strconv.Atoi(slice[1])
 		if err != nil {
-			return utility.MessageError
+			return utility.MessageSystemError
 		}
 		month, err := strconv.Atoi(slice[2])
 		if err != nil {
-			return utility.MessageError
+			return utility.MessageSystemError
 		}
 		msg, err := i.getter.ListRecordsInMonth(year, time.Month(month), i.userID)
 		if err != nil {
-			return utility.MessageError
+			return utility.MessageSystemError
 		}
 		if len(msg.Record) == 0 {
 			return utility.MessageNotFound
 		}
 		msgJson, err := json.Marshal(&msg)
 		if err != nil {
-			return utility.MessageError
+			return utility.MessageSystemError
 		}
 		return string(msgJson)
 	case utility.CommandHelp:
@@ -166,7 +169,7 @@ func execCommand(i input) string {
 	case utility.CommandDefault:
 		return utility.MessageDefault
 	}
-	return utility.MessageError
+	return utility.MessageSystemError
 }
 
 func main() {

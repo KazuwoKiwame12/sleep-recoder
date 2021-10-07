@@ -32,9 +32,10 @@ const (
 	\t5日分の睡眠記録の取得: "取得"\n
 	\t指定した月の睡眠記録の取得: "取得 (年) (月)"
 	`
-	MessageSuccessRecord string = "記録できました"
-	MessageError         string = "システム側でエラーが発生しました"
-	MessageNotFound      string = "記録が存在しません"
+	MessageSuccessRecord  string = "記録できました"
+	MessageSystemError    string = "システム側でエラーが発生しました"
+	MessageBedinTimeError string = "12時から22時の間に眠ることはありません。"
+	MessageNotFound       string = "記録が存在しません"
 )
 
 type Command int

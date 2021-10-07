@@ -10,7 +10,11 @@ type Setter struct {
 }
 
 func (s *Setter) SaveBedinTime(userID string) error {
-	return s.C.SaveBedinTime(utility.CreateDateWIthJst(), userID)
+	now := utility.CreateDateWIthJst()
+	if err := utility.ValidateBedintime(now.Hour()); err != nil {
+		return err
+	}
+	return s.C.SaveBedinTime(now, userID)
 }
 
 func (s *Setter) SaveWakeTime(userID string) error {
