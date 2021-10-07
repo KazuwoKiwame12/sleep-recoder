@@ -69,6 +69,60 @@ func TestListRecordsInFiveDays(t *testing.T) {
 				Avg: 8,
 			},
 		},
+		{
+			name: "success when there is a record that have not wake time",
+			setup: func() *mock_db.MockClient {
+				mock := mock_db.NewMockClient(ctrl)
+				mock.EXPECT().ListInFivedays(gomock.Any(), userID).Return(
+					[]entity.SleepRecord{
+						{
+							Date:     utility.CreateStartDate(wakeTime.Year(), wakeTime.Month(), wakeTime.Day()),
+							TimeB:    wakeTime.Add(-8 * time.Hour).Unix(),
+							TimeW:    wakeTime.Unix(),
+							Duration: wakeTime.Sub(wakeTime.Add(-8 * time.Hour)).Hours(),
+						},
+						{
+							Date:  utility.CreateStartDate(wakeTime.Year(), wakeTime.Month(), wakeTime.Day()).AddDate(0, 0, -1),
+							TimeB: wakeTime.AddDate(0, 0, -1).Add(-8 * time.Hour).Unix(),
+						},
+					},
+					nil,
+				)
+				return mock
+			},
+			want: entity.ResponseContents{
+				Record: []entity.ResponseContent{
+					{
+						Date:     fmt.Sprintf("%d日", wakeTime.Day()),
+						TimeB:    fmt.Sprintf("%d時%d分", wakeTime.Add(-8*time.Hour).Hour(), wakeTime.Add(-8*time.Hour).Minute()),
+						TimeW:    fmt.Sprintf("%d時%d分", wakeTime.Hour(), wakeTime.Minute()),
+						Duration: "8.0時間",
+						Eval:     "😁 2:良いね!",
+					},
+				},
+				Avg: 8,
+			},
+		},
+		{
+			name: "success when there is no return value",
+			setup: func() *mock_db.MockClient {
+				mock := mock_db.NewMockClient(ctrl)
+				mock.EXPECT().ListInFivedays(gomock.Any(), userID).Return(
+					[]entity.SleepRecord{
+						{
+							Date:  utility.CreateStartDate(wakeTime.Year(), wakeTime.Month(), wakeTime.Day()),
+							TimeB: wakeTime.Add(-8 * time.Hour).Unix(),
+						},
+						{
+							Date:  utility.CreateStartDate(wakeTime.Year(), wakeTime.Month(), wakeTime.Day()).AddDate(0, 0, -1),
+							TimeB: wakeTime.AddDate(0, 0, -1).Add(-8 * time.Hour).Unix(),
+						},
+					},
+					nil,
+				)
+				return mock
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -139,6 +193,60 @@ func TestListRecordsInMonth(t *testing.T) {
 					},
 				},
 				Avg: 8,
+			},
+		},
+		{
+			name: "success when there is a record that have not wake time",
+			setup: func() *mock_db.MockClient {
+				mock := mock_db.NewMockClient(ctrl)
+				mock.EXPECT().ListInMonth(gomock.Any(), gomock.Any(), userID).Return(
+					[]entity.SleepRecord{
+						{
+							Date:     utility.CreateStartDate(wakeTime.Year(), wakeTime.Month(), wakeTime.Day()),
+							TimeB:    wakeTime.Add(-8 * time.Hour).Unix(),
+							TimeW:    wakeTime.Unix(),
+							Duration: wakeTime.Sub(wakeTime.Add(-8 * time.Hour)).Hours(),
+						},
+						{
+							Date:  utility.CreateStartDate(wakeTime.Year(), wakeTime.Month(), wakeTime.Day()).AddDate(0, 0, -1),
+							TimeB: wakeTime.AddDate(0, 0, -1).Add(-8 * time.Hour).Unix(),
+						},
+					},
+					nil,
+				)
+				return mock
+			},
+			want: entity.ResponseContents{
+				Record: []entity.ResponseContent{
+					{
+						Date:     fmt.Sprintf("%d日", wakeTime.Day()),
+						TimeB:    fmt.Sprintf("%d時%d分", wakeTime.Add(-8*time.Hour).Hour(), wakeTime.Add(-8*time.Hour).Minute()),
+						TimeW:    fmt.Sprintf("%d時%d分", wakeTime.Hour(), wakeTime.Minute()),
+						Duration: "8.0時間",
+						Eval:     "😁 2:良いね!",
+					},
+				},
+				Avg: 8,
+			},
+		},
+		{
+			name: "success when there is no return value",
+			setup: func() *mock_db.MockClient {
+				mock := mock_db.NewMockClient(ctrl)
+				mock.EXPECT().ListInMonth(gomock.Any(), gomock.Any(), userID).Return(
+					[]entity.SleepRecord{
+						{
+							Date:  utility.CreateStartDate(wakeTime.Year(), wakeTime.Month(), wakeTime.Day()),
+							TimeB: wakeTime.Add(-8 * time.Hour).Unix(),
+						},
+						{
+							Date:  utility.CreateStartDate(wakeTime.Year(), wakeTime.Month(), wakeTime.Day()).AddDate(0, 0, -1),
+							TimeB: wakeTime.AddDate(0, 0, -1).Add(-8 * time.Hour).Unix(),
+						},
+					},
+					nil,
+				)
+				return mock
 			},
 		},
 	}
