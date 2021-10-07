@@ -21,24 +21,29 @@ func (g *Getter) ListRecordsInFiveDays(userID string) (entity.ResponseContents, 
 	}
 
 	rcs := entity.ResponseContents{
-		Record: make([]entity.ResponseContent, len(srs)),
+		Record: make([]entity.ResponseContent, 0, len(srs)),
 	}
-	for i, sr := range srs {
+	for _, sr := range srs {
 		jst, _ := time.LoadLocation("Asia/Tokyo")
 		bedinTime := time.Unix(sr.TimeB, 0).In(jst)
+		if sr.Duration == 0 {
+			continue
+		}
 		wakeTime := time.Unix(sr.TimeW, 0).In(jst)
-		sleepTime := wakeTime.Sub(bedinTime).Hours()
 		rc := entity.ResponseContent{
 			Date:     fmt.Sprintf("%d日", sr.Date.Day()),
 			TimeB:    fmt.Sprintf("%d時%d分", bedinTime.Hour(), bedinTime.Minute()),
 			TimeW:    fmt.Sprintf("%d時%d分", wakeTime.Hour(), wakeTime.Minute()),
-			Duration: fmt.Sprintf("%.1f時間", sleepTime),
+			Duration: fmt.Sprintf("%.1f時間", sr.Duration),
 			Eval:     g.evaluateSleep(bedinTime, wakeTime),
 		}
-		rcs.Record[i] = rc
-		rcs.Avg += sleepTime
+		rcs.Record = append(rcs.Record, rc)
+		rcs.Avg += sr.Duration
 	}
-	rcs.Avg = math.Round((rcs.Avg/float64(len(srs)))*10) / 10
+	if len(rcs.Record) == 0 {
+		return entity.ResponseContents{}, err
+	}
+	rcs.Avg = math.Round((rcs.Avg/float64(len(rcs.Record)))*10) / 10
 	return rcs, nil
 }
 
@@ -49,24 +54,29 @@ func (g *Getter) ListRecordsInMonth(year int, month time.Month, userID string) (
 	}
 
 	rcs := entity.ResponseContents{
-		Record: make([]entity.ResponseContent, len(srs)),
+		Record: make([]entity.ResponseContent, 0, len(srs)),
 	}
-	for i, sr := range srs {
+	for _, sr := range srs {
 		jst, _ := time.LoadLocation("Asia/Tokyo")
 		bedinTime := time.Unix(sr.TimeB, 0).In(jst)
+		if sr.Duration == 0 {
+			continue
+		}
 		wakeTime := time.Unix(sr.TimeW, 0).In(jst)
-		sleepTime := wakeTime.Sub(bedinTime).Hours()
 		rc := entity.ResponseContent{
 			Date:     fmt.Sprintf("%d日", sr.Date.Day()),
 			TimeB:    fmt.Sprintf("%d時%d分", bedinTime.Hour(), bedinTime.Minute()),
 			TimeW:    fmt.Sprintf("%d時%d分", wakeTime.Hour(), wakeTime.Minute()),
-			Duration: fmt.Sprintf("%.1f時間", sleepTime),
+			Duration: fmt.Sprintf("%.1f時間", sr.Duration),
 			Eval:     g.evaluateSleep(bedinTime, wakeTime),
 		}
-		rcs.Record[i] = rc
-		rcs.Avg += sleepTime
+		rcs.Record = append(rcs.Record, rc)
+		rcs.Avg += sr.Duration
 	}
-	rcs.Avg = math.Round((rcs.Avg/float64(len(srs)))*10) / 10
+	if len(rcs.Record) == 0 {
+		return entity.ResponseContents{}, err
+	}
+	rcs.Avg = math.Round((rcs.Avg/float64(len(rcs.Record)))*10) / 10
 	return rcs, nil
 }
 
