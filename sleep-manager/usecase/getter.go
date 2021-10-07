@@ -41,7 +41,7 @@ func (g *Getter) ListRecordsInFiveDays(userID string) (entity.ResponseContents, 
 		rcs.Avg += sr.Duration
 	}
 	if len(rcs.Record) == 0 {
-		return entity.ResponseContents{}, err
+		return entity.ResponseContents{}, nil
 	}
 	rcs.Avg = math.Round((rcs.Avg/float64(len(rcs.Record)))*10) / 10
 	return rcs, nil
@@ -74,7 +74,7 @@ func (g *Getter) ListRecordsInMonth(year int, month time.Month, userID string) (
 		rcs.Avg += sr.Duration
 	}
 	if len(rcs.Record) == 0 {
-		return entity.ResponseContents{}, err
+		return entity.ResponseContents{}, nil
 	}
 	rcs.Avg = math.Round((rcs.Avg/float64(len(rcs.Record)))*10) / 10
 	return rcs, nil
