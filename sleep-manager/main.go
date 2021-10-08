@@ -20,6 +20,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
+	"golang.org/x/text/width"
 )
 
 var (
@@ -144,7 +145,7 @@ func execCommand(i input) string {
 		}
 		return string(msgJson)
 	case utility.CommandMonth:
-		slice := strings.Split(i.command, " ")
+		slice := strings.Split(width.Narrow.String(i.command), " ")
 		year, err := strconv.Atoi(slice[1])
 		if err != nil {
 			return utility.MessageNotExistYear
@@ -154,7 +155,7 @@ func execCommand(i input) string {
 			return utility.MessageNotExistMonth
 		}
 		m := time.Month(month)
-		if time.January <= m && m <= time.December {
+		if m < time.January || m > time.December {
 			return utility.MessageNotExistMonth
 		}
 		msg, err := i.getter.ListRecordsInMonth(year, m, i.userID)
