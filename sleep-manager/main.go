@@ -127,7 +127,7 @@ func execCommand(i input) string {
 		return utility.MessageSuccessRecord
 	case utility.CommandWake:
 		if err := i.setter.SaveWakeTime(i.userID); err != nil {
-			return utility.MessageSystemError
+			return utility.MessageNotSleep
 		}
 		return utility.MessageSuccessRecord
 	case utility.CommandFiveDays:
