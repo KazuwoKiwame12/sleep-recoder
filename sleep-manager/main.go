@@ -35,7 +35,7 @@ type input struct {
 }
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	secret := os.Getenv("CHANNEL_SECRET")
+	secret := os.Getenv("LINE_CHANNEL_SECRET")
 	if !verifySignature(secret, request.Headers["x-line-signature"], []byte(request.Body)) {
 		return events.APIGatewayProxyResponse{
 			StatusCode: http.StatusBadRequest,
@@ -55,7 +55,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	bot, err := linebot.New(
 		secret,
-		os.Getenv("CHANNEL_ACCESS_TOKEN"),
+		os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"),
 	)
 	if err != nil {
 		return events.APIGatewayProxyResponse{
@@ -64,10 +64,11 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		}, ErrorInit
 	}
 
-	endPoint := os.Getenv("DYNAMODB_ENDPOINT")
+	// endPoint := os.Getenv("DYNAMODB_ENDPOINT")
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 	sess := session.Must(session.NewSession())
-	config := aws.NewConfig().WithRegion("ap-northeast-3").WithEndpoint(endPoint)
+	// config := aws.NewConfig().WithRegion("ap-northeast-3").WithEndpoint(endPoint)
+	config := aws.NewConfig().WithRegion("ap-northeast-3")
 	client := db.NewSleepRecordClient(tableName, sess, config)
 	getter := usecase.Getter{C: client}
 	setter := usecase.Setter{C: client}
