@@ -27,47 +27,42 @@ Resources:
             Method: POST
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
-          DYNAMODB_ENDPOINT: "http://dynamodb:8000"
           DYNAMODB_TABLE_NAME: SleepRecord
           LINE_CHANNEL_SECRET: ""
           LINE_CHANNEL_ACCESS_TOKEN: ""
-  NotifyFnction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: notify/
-      Handler: notify
-      Runtime: go1.x
-      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
-      Policies: AmazonDynamoDBFullAccess
-      Events:
-        NotifySchedule:
-          Type: Schedule
-          Properties:
-            Schedule: 'cron(0 23 ? * MON *)'
-            Name: NotifySchedule
-            Description: notify abut weekly sleep record data to user
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
-        Variables:
-          DYNAMODB_ENDPOINT: "http://dynamodb:8000"
-          DYNAMODB_TABLE_NAME: SleepRecord
-          LINE_CHANNEL_SECRET: ""
-          LINE_CHANNEL_ACCESS_TOKEN: ""  
+  # NotifyFnction:
+  #   Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  #   Properties:
+  #     CodeUri: notify/
+  #     Handler: notify
+  #     Runtime: go1.x
+  #     Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+  #     Policies: AmazonDynamoDBFullAccess
+  #     Events:
+  #       NotifySchedule:
+  #         Type: Schedule
+  #         Properties:
+  #           Schedule: 'cron(0 23 ? * MON *)'
+  #           Name: NotifySchedule
+  #           Description: notify abut weekly sleep record data to user
+  #     Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+  #       Variables:
+  #         DYNAMODB_ENDPOINT: ""
+  #         DYNAMODB_TABLE_NAME: SleepRecord
+  #         LINE_CHANNEL_SECRET: ""
+  #         LINE_CHANNEL_ACCESS_TOKEN: ""  
   SleepRecordDynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - 
-          AttributeName: Date
-          AttributeType: String
-        - 
-          AttributeName": UserID
-          AttributeType: String
+        - AttributeName: Date
+          AttributeType: S
+        - AttributeName: UserID
+          AttributeType: S
       KeySchema:
-        - 
-          AttributeName: Date
+        - AttributeName: Date
           KeyType: HASH
-        - 
-          AttributeName: UserID
+        - AttributeName: UserID
           KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 1
