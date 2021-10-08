@@ -147,13 +147,17 @@ func execCommand(i input) string {
 		slice := strings.Split(i.command, " ")
 		year, err := strconv.Atoi(slice[1])
 		if err != nil {
-			return utility.MessageSystemError
+			return utility.MessageNotExistYear
 		}
 		month, err := strconv.Atoi(slice[2])
 		if err != nil {
-			return utility.MessageSystemError
+			return utility.MessageNotExistMonth
 		}
-		msg, err := i.getter.ListRecordsInMonth(year, time.Month(month), i.userID)
+		m := time.Month(month)
+		if time.January <= m && m <= time.December {
+			return utility.MessageNotExistMonth
+		}
+		msg, err := i.getter.ListRecordsInMonth(year, m, i.userID)
 		if err != nil {
 			return utility.MessageSystemError
 		}

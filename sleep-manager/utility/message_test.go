@@ -32,6 +32,16 @@ func TestValidateCommand(t *testing.T) {
 			want:  utility.CommandMonth,
 		},
 		{
+			name:  "month command",
+			input: "取得　2021　11",
+			want:  utility.CommandMonth,
+		},
+		{
+			name:  "month command",
+			input: "取得　2021",
+			want:  utility.CommandDefault,
+		},
+		{
 			name:  "help command",
 			input: "説明",
 			want:  utility.CommandHelp,

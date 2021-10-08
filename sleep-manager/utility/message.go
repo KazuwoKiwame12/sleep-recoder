@@ -3,6 +3,8 @@ package utility
 import (
 	"regexp"
 	"strings"
+
+	"golang.org/x/text/width"
 )
 
 const (
@@ -52,6 +54,8 @@ const (
 	MessageBedinTimeError string = "12時から22時の間に眠ることはありません。"
 	MessageNotFound       string = "記録が存在しません"
 	MessageNotSleep       string = "本日は眠っていないので起床時刻の記録ができません"
+	MessageNotExistMonth  string = "正しい形式の月情報(1~12)を入力してください"
+	MessageNotExistYear   string = "正しい形式の年情報を入力してください"
 )
 
 type Command int
@@ -76,11 +80,14 @@ func ValidateCommand(com string) Command {
 		return CommandHelp
 	}
 	if regexp.MustCompile(`取得.*`).MatchString(com) {
-		slice := strings.Split(com, " ")
-		if len(slice) == 1 {
+		slice := strings.Split(width.Narrow.String(com), " ")
+		length := len(slice)
+		if length == 1 {
 			return CommandFiveDays
+		} else if length == 3 {
+			return CommandMonth
 		}
-		return CommandMonth
+		return CommandDefault
 	}
 	return CommandDefault
 }
