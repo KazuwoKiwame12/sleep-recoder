@@ -1,9 +1,13 @@
 package usecase
 
 import (
+	"os"
 	"sleep-manager/db"
 	"sleep-manager/utility"
+	"time"
 )
+
+var TestNow time.Time // テスト用の時刻変数
 
 type Setter struct {
 	C db.Client
@@ -11,6 +15,9 @@ type Setter struct {
 
 func (s *Setter) SaveBedinTime(userID string) error {
 	now := utility.CreateDateWIthJst()
+	if len(os.Getenv("IS_TEST")) != 0 {
+		now = TestNow
+	}
 	if err := utility.ValidateBedintime(now.Hour()); err != nil {
 		return err
 	}
