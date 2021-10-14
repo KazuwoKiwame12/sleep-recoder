@@ -57,3 +57,33 @@ func TestConvertToResponse(t *testing.T) {
 		})
 	}
 }
+
+func TestGetLineMessage(t *testing.T) {
+	instance := entity.ResponseContents{
+		Record: []entity.ResponseContent{
+			{
+				Date:     "13日",
+				TimeB:    "1時1分",
+				TimeW:    "8時21分",
+				Duration: "7.3時間",
+				Eval:     "😥 1:がんばれ!",
+			},
+			{
+				Date:     "14日",
+				TimeB:    "1時11分",
+				TimeW:    "7時30分",
+				Duration: "6.3時間",
+				Eval:     "😥 1:がんばれ!",
+			},
+		},
+		Avg: 6.8,
+	}
+	head := "****睡眠記録****\n平均睡眠時間: 6.8時間\n\n各日にちの睡眠記録\n"
+	bodyOne := "【13日】: 😥 1:がんばれ!\n\t就寝: 1時1分\n\t起床: 8時21分\n\t睡眠時間: 7.3時間\n\n"
+	bodyTwo := "【14日】: 😥 1:がんばれ!\n\t就寝: 1時11分\n\t起床: 7時30分\n\t睡眠時間: 6.3時間\n\n"
+	want := head + bodyOne + bodyTwo
+	result := instance.GetLineMessage()
+	if result != want {
+		t.Errorf("unmatched error:\nresult is\n%s\nwant is\n%s", result, want)
+	}
+}

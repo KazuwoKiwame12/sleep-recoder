@@ -139,11 +139,7 @@ func execCommand(i input) string {
 		if len(msg.Record) == 0 {
 			return utility.MessageNotFound
 		}
-		msgJson, err := json.Marshal(&msg)
-		if err != nil {
-			return utility.MessageSystemError
-		}
-		return string(msgJson)
+		return msg.GetLineMessage()
 	case utility.CommandMonth:
 		slice := strings.Split(width.Narrow.String(i.command), " ")
 		year, err := strconv.Atoi(slice[1])
@@ -165,11 +161,7 @@ func execCommand(i input) string {
 		if len(msg.Record) == 0 {
 			return utility.MessageNotFound
 		}
-		msgJson, err := json.Marshal(&msg)
-		if err != nil {
-			return utility.MessageSystemError
-		}
-		return string(msgJson)
+		return msg.GetLineMessage()
 	case utility.CommandHelp:
 		return utility.MessageHelp
 	case utility.CommandDefault:
