@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"os"
 	"sleep-manager/db"
@@ -23,11 +22,6 @@ import (
 	"golang.org/x/text/width"
 )
 
-var (
-	ErrorVerify = errors.New("error: failed to verify signature")
-	ErrorInit   = errors.New("error: failed to create bot")
-)
-
 type input struct {
 	command string
 	userID  string
@@ -40,8 +34,8 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	if !verifySignature(secret, request.Headers["x-line-signature"], []byte(request.Body)) {
 		return events.APIGatewayProxyResponse{
 			StatusCode: http.StatusBadRequest,
-			Body:       ErrorVerify.Error(),
-		}, ErrorVerify
+			Body:       utility.ErrorVerify.Error(),
+		}, utility.ErrorVerify
 	}
 
 	content := &struct {
@@ -61,14 +55,12 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	if err != nil {
 		return events.APIGatewayProxyResponse{
 			StatusCode: http.StatusInternalServerError,
-			Body:       ErrorInit.Error(),
-		}, ErrorInit
+			Body:       utility.ErrorInit.Error(),
+		}, utility.ErrorInit
 	}
 
-	// endPoint := os.Getenv("DYNAMODB_ENDPOINT")
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 	sess := session.Must(session.NewSession())
-	// config := aws.NewConfig().WithRegion("ap-northeast-3").WithEndpoint(endPoint)
 	config := aws.NewConfig().WithRegion("ap-northeast-3")
 	client := db.NewSleepRecordClient(tableName, sess, config)
 	getter := usecase.Getter{C: client}
@@ -86,11 +78,17 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 					},
 				)
 				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(resMsg)).Do(); err != nil {
-					return events.APIGatewayProxyResponse{}, errors.New("failed: can't reply message")
+					return events.APIGatewayProxyResponse{
+						StatusCode: http.StatusInternalServerError,
+						Body:       utility.ErrorReply.Error(),
+					}, utility.ErrorReply
 				}
 			default:
 				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(utility.MessageDefault)).Do(); err != nil {
-					return events.APIGatewayProxyResponse{}, errors.New("failed: can't reply message")
+					return events.APIGatewayProxyResponse{
+						StatusCode: http.StatusInternalServerError,
+						Body:       utility.ErrorReply.Error(),
+					}, utility.ErrorReply
 				}
 			}
 		}
