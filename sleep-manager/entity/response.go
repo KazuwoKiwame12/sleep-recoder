@@ -10,13 +10,13 @@ type Evaluation int
 func (e Evaluation) ConvertToResponse() string {
 	switch e {
 	case SuperBad:
-		return "😱 0:伸び代しかない!"
+		return "😱 伸び代しかない!"
 	case Bad:
-		return "😥 1:がんばれ!"
+		return "😥 がんばれ!"
 	case Good:
-		return "😁 2:良いね!"
+		return "😁 良いね!"
 	case Perfect:
-		return "🤩 3:完璧!"
+		return "🤩 完璧!"
 	default:
 		return "🤩 エラー!"
 	}
