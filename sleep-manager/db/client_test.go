@@ -17,15 +17,19 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var (
+	testDate time.Time = utility.CreateStartDate(2021, 10, 15) //2021年10月15日0時0分0秒
+
+)
+
 func TestSaveWakeTime(t *testing.T) {
 	c := getClient()
-	wakeTime := utility.CreateDateWIthJst()
-	bedinTime := wakeTime.Add(-8 * time.Hour)
+	bedinTime := testDate
+	wakeTime := bedinTime.Add(8 * time.Hour)
 	userID := "sample"
-	date := utility.CreateStartDate(wakeTime.Year(), wakeTime.Month(), utility.GetCorrectDayWithHour(wakeTime.Day(), wakeTime.Hour()))
 	if err := c.Table.Put(
 		entity.SleepRecord{
-			Date:   date,
+			Date:   testDate,
 			UserID: userID,
 			TimeB:  bedinTime.Unix(),
 		},
@@ -33,7 +37,7 @@ func TestSaveWakeTime(t *testing.T) {
 		t.Error(err)
 	}
 	t.Cleanup(func() {
-		if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
+		if err := c.Table.Delete("UserID", userID).Range("Date", testDate).Run(); err != nil {
 			t.Error(err)
 		}
 	})
@@ -48,7 +52,7 @@ func TestSaveWakeTime(t *testing.T) {
 		want entity.SleepRecord
 	}{
 		{
-			name: "failed to get targetdate data",
+			name: "failed to get bedinTime of testDate",
 			input: struct {
 				now    time.Time
 				userID string
@@ -59,7 +63,7 @@ func TestSaveWakeTime(t *testing.T) {
 		},
 		{
 			name: "success",
-			date: date,
+			date: testDate,
 			input: struct {
 				now    time.Time
 				userID string
@@ -68,7 +72,7 @@ func TestSaveWakeTime(t *testing.T) {
 				userID: userID,
 			},
 			want: entity.SleepRecord{
-				Date:     date,
+				Date:     testDate,
 				UserID:   userID,
 				TimeB:    bedinTime.Unix(),
 				TimeW:    wakeTime.Unix(),
@@ -81,13 +85,13 @@ func TestSaveWakeTime(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			if err := c.SaveWakeTime(test.input.now, test.input.userID); err != nil {
 				empty := entity.SleepRecord{}
-				if test.want == empty {
+				if test.want == empty { // 睡眠時刻が取得できないケースのテスト
 					return
 				}
 				t.Error(err)
 			}
 			var sr entity.SleepRecord
-			if err := c.Table.Get("Date", test.date).Range("UserID", dynamo.Equal, test.input.userID).One(&sr); err != nil {
+			if err := c.Table.Get("UserID", test.input.userID).Range("Date", dynamo.Equal, test.date).One(&sr); err != nil {
 				t.Error(err)
 			}
 			if !isSameSleepRecord(sr, test.want, t) {
@@ -99,11 +103,10 @@ func TestSaveWakeTime(t *testing.T) {
 
 func TestSaveBedinTime(t *testing.T) {
 	c := getClient()
-	bedinTime := utility.CreateDateWIthJst()
 	userID := "sample"
-	date := utility.CreateStartDate(bedinTime.Year(), bedinTime.Month(), utility.GetCorrectDayWithHour(bedinTime.Day(), bedinTime.Hour()))
+	bedinTime := testDate.Add(time.Hour)
 	t.Cleanup(func() {
-		if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
+		if err := c.Table.Delete("UserID", userID).Range("Date", testDate).Run(); err != nil {
 			t.Error(err)
 		}
 	})
@@ -119,7 +122,7 @@ func TestSaveBedinTime(t *testing.T) {
 	}{
 		{
 			name: "success",
-			date: date,
+			date: testDate,
 			input: struct {
 				now    time.Time
 				userID string
@@ -128,7 +131,7 @@ func TestSaveBedinTime(t *testing.T) {
 				userID: userID,
 			},
 			want: entity.SleepRecord{
-				Date:   date,
+				Date:   testDate,
 				UserID: userID,
 				TimeB:  bedinTime.Unix(),
 			},
@@ -141,7 +144,7 @@ func TestSaveBedinTime(t *testing.T) {
 				t.Error(err)
 			}
 			var sr entity.SleepRecord
-			if err := c.Table.Get("Date", test.date).Range("UserID", dynamo.Equal, test.input.userID).One(&sr); err != nil {
+			if err := c.Table.Get("UserID", test.input.userID).Range("Date", dynamo.Equal, test.date).One(&sr); err != nil {
 				t.Error(err)
 			}
 			if !isSameSleepRecord(sr, test.want, t) {
@@ -153,32 +156,31 @@ func TestSaveBedinTime(t *testing.T) {
 
 func TestListInFivedays(t *testing.T) {
 	c := getClient()
-	now := utility.CreateDateWIthJst()
 	userID := "sample"
-	var sixDays []time.Time = make([]time.Time, 6)
-	var want []entity.SleepRecord = make([]entity.SleepRecord, 5)
-	for i := 0; i < len(sixDays); i++ {
-		date := now.AddDate(0, 0, -1*i)
-		sixDays[i] = utility.CreateStartDate(date.Year(), date.Month(), utility.GetCorrectDayWithHour(date.Day(), date.Hour()))
+	var (
+		fiveDays []time.Time          = make([]time.Time, 5)
+		want     []entity.SleepRecord = make([]entity.SleepRecord, 5) //降順データ
+	)
+	for i := 0; i < len(fiveDays); i++ {
+		date := testDate.AddDate(0, 0, -1*i)
+		fiveDays[i] = utility.CreateStartDate(date.Year(), date.Month(), utility.GetCorrectDayWithHour(date.Day(), date.Hour()))
 		item := entity.SleepRecord{
-			Date:     sixDays[i],
+			Date:     fiveDays[i],
 			UserID:   userID,
-			TimeB:    date.Add(-7 * time.Hour).Unix(),
-			TimeW:    date.Unix(),
-			Duration: date.Sub(date.Add(-7 * time.Hour)).Hours(),
+			TimeB:    date.Unix(),
+			TimeW:    date.Add(7 * time.Hour).Unix(),
+			Duration: (7 * time.Hour).Hours(),
 		}
 		item.AdjustDuration()
 		if err := c.Table.Put(item).Run(); err != nil {
 			t.Error(err)
 		}
-		if i != len(sixDays)-1 {
-			want[i] = item
-		}
+		want[i] = item
 	}
 
 	t.Cleanup(func() {
-		for _, date := range sixDays {
-			if err := c.Table.Delete("Date", date).Range("UserID", userID).Run(); err != nil {
+		for _, date := range fiveDays {
+			if err := c.Table.Delete("UserID", userID).Range("Date", date).Run(); err != nil {
 				t.Error(err)
 			}
 		}
@@ -198,7 +200,7 @@ func TestListInFivedays(t *testing.T) {
 				now    time.Time
 				userID string
 			}{
-				now:    now,
+				now:    testDate,
 				userID: userID,
 			},
 			want: want,
@@ -207,13 +209,13 @@ func TestListInFivedays(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			srs, err := c.ListInFivedays(test.input.now, test.input.userID)
+			results, err := c.ListInFivedays(test.input.now, test.input.userID)
 			if err != nil {
 				t.Error(err)
 			}
-			for i, sr := range srs {
-				if !isSameSleepRecord(sr, test.want[i], t) {
-					t.Errorf("error: get-data is %v, but want is %v", sr, test.want)
+			for i, result := range results {
+				if !isSameSleepRecord(result, test.want[i], t) {
+					t.Errorf("unmatched error: result[%d] is %v, want[%d] is %v", i, result, i, test.want[i])
 				}
 			}
 		})
@@ -222,29 +224,33 @@ func TestListInFivedays(t *testing.T) {
 
 func TestListInMonth(t *testing.T) {
 	c := getClient()
-	now := time.Now()
-	from := utility.CreateStartDate(now.Year(), now.Month(), 1)
+	from := utility.CreateStartDate(testDate.Year(), testDate.Month(), 1)
 	to := from.AddDate(0, 1, 0)
 	userID := "sample"
-	var want []entity.SleepRecord = make([]entity.SleepRecord, int(to.Sub(from).Hours())/24)
-	for i := from; i.Before(to); i.AddDate(0, 0, 1) {
+	var (
+		thirtyDays []time.Time          = make([]time.Time, 30)
+		want       []entity.SleepRecord = make([]entity.SleepRecord, 30) //降順データ
+	)
+	for i := 0; i < len(thirtyDays); i++ {
+		date := to.AddDate(0, 0, -1*i)
+		thirtyDays[i] = utility.CreateStartDate(date.Year(), date.Month(), utility.GetCorrectDayWithHour(date.Day(), date.Hour()))
 		item := entity.SleepRecord{
-			Date:     i,
+			Date:     thirtyDays[i],
 			UserID:   userID,
-			TimeB:    i.Add(-7 * time.Hour).Unix(),
-			TimeW:    i.Unix(),
-			Duration: i.Sub(i.Add(-7 * time.Hour)).Hours(),
+			TimeB:    date.Unix(),
+			TimeW:    date.Add(7 * time.Hour).Unix(),
+			Duration: (7 * time.Hour).Hours(),
 		}
 		item.AdjustDuration()
 		if err := c.Table.Put(item).Run(); err != nil {
 			t.Error(err)
 		}
-		want[i.Day()-1] = item
+		want[i] = item
 	}
 
 	t.Cleanup(func() {
-		for i := from; i.Before(to); i.AddDate(0, 0, 1) {
-			if err := c.Table.Delete("Date", i).Range("UserID", userID).Run(); err != nil {
+		for _, date := range thirtyDays {
+			if err := c.Table.Delete("UserID", userID).Range("Date", date).Run(); err != nil {
 				t.Error(err)
 			}
 		}
@@ -264,7 +270,7 @@ func TestListInMonth(t *testing.T) {
 				now    time.Time
 				userID string
 			}{
-				now:    now,
+				now:    testDate,
 				userID: userID,
 			},
 			want: want,
@@ -273,13 +279,13 @@ func TestListInMonth(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			srs, err := c.ListInMonth(test.input.now.Year(), test.input.now.Month(), test.input.userID)
+			results, err := c.ListInMonth(test.input.now.Year(), test.input.now.Month(), test.input.userID)
 			if err != nil {
 				t.Error(err)
 			}
-			for i, sr := range srs {
-				if !isSameSleepRecord(sr, test.want[i], t) {
-					t.Errorf("error: get-data is %v, but want is %v", sr, test.want)
+			for i, result := range results {
+				if !isSameSleepRecord(result, test.want[i], t) {
+					t.Errorf("unmatched error: result[%d] is %v, want[%d] is %v", i, result, i, test.want[i])
 				}
 			}
 		})

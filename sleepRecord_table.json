@@ -1,27 +1,27 @@
 {
     "AttributeDefinitions": [
         {
-            "AttributeName": "Date",
+            "AttributeName": "UserID",
             "AttributeType": "S"
         },
         {
-            "AttributeName": "UserID",
+            "AttributeName": "Date",
             "AttributeType": "S"
         }
     ],
     "TableName": "SleepRecord",
     "KeySchema": [
         {
-            "AttributeName": "Date",
+            "AttributeName": "UserID",
             "KeyType": "HASH"
         },
         {
-            "AttributeName": "UserID",
+            "AttributeName": "Date",
             "KeyType": "RANGE"
         }
     ],
     "ProvisionedThroughput": {
-        "ReadCapacityUnits": 1,
-        "WriteCapacityUnits": 1
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
     }
 }
