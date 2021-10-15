@@ -55,18 +55,18 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: Date
-          AttributeType: S
         - AttributeName: UserID
+          AttributeType: S
+        - AttributeName: Date
           AttributeType: S
       KeySchema:
-        - AttributeName: Date
-          KeyType: HASH
         - AttributeName: UserID
+          KeyType: HASH
+        - AttributeName: Date
           KeyType: RANGE
       ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
+        ReadCapacityUnits: 3
+        WriteCapacityUnits: 2
       TableName: SleepRecord
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
