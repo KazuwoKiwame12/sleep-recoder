@@ -274,11 +274,8 @@ func TestEvaluateSleep(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		input struct {
-			bedinTime time.Time
-			wakeTime  time.Time
-		}
-		want entity.Evaluation
+		input input
+		want  entity.Evaluation
 	}{
 		{
 			name: "perfect case",
