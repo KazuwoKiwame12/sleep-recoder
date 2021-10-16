@@ -1,10 +1,6 @@
 package db_test
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"path/filepath"
 	"sleep-manager/db"
 	"sleep-manager/entity"
 	"sleep-manager/utility"
@@ -14,7 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
-	"github.com/joho/godotenv"
 )
 
 var (
@@ -299,12 +294,8 @@ func TestListInMonth(t *testing.T) {
 }
 
 func getClient() *db.SleepRecordClient {
-	err := godotenv.Load(fmt.Sprintf("%s/%s", filepath.Dir("../.env"), ".env"))
-	if err != nil {
-		log.Fatal("error: loading .env file")
-	}
-	endPoint := os.Getenv("DYNAMODB_ENDPOINT")
-	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
+	endPoint := "http://localhost:8000"
+	tableName := "SleepRecord"
 	sess := session.Must(session.NewSession())
 	config := aws.NewConfig().WithRegion("ap-northeast-3").WithEndpoint(endPoint)
 	return db.NewSleepRecordClient(tableName, sess, config)

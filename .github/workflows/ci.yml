@@ -1,0 +1,56 @@
+name: CI
+
+on: 
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: set up golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: check out
+        uses: actions/checkout@v2
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v2.0.0
+        with:
+          port: 8000
+          cors: '*'
+      - name: Create Table
+        run: |
+          aws dynamodb create-table --cli-input-json file://sleepRecord_table.json --endpoint-url http://localhost:8000
+        env:
+          AWS_ACCESS_KEY_ID: hoge
+          AWS_SECRET_ACCESS_KEY: hoge
+          AWS_DEFAULT_REGION: ap-northeast-3
+      - name: cache
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Get dependencies
+        run: cd sleep-manager && go mod download
+      - name: test
+        env:
+          AWS_ACCESS_KEY_ID: hoge
+          AWS_SECRET_ACCESS_KEY: hoge
+        run: cd sleep-manager && go test ./...
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: move path
+        run: |
+          cd sleep-manager
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.42.0
