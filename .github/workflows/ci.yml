@@ -47,6 +47,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          path: sleep-manager
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
