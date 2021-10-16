@@ -213,6 +213,9 @@ func TestListInFivedays(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
+			if len(results) == 0 {
+				t.Error("no results")
+			}
 			for i, result := range results {
 				if !isSameSleepRecord(result, test.want[i], t) {
 					t.Errorf("unmatched error: result[%d] is %v, want[%d] is %v", i, result, i, test.want[i])
@@ -225,7 +228,7 @@ func TestListInFivedays(t *testing.T) {
 func TestListInMonth(t *testing.T) {
 	c := getClient()
 	from := utility.CreateStartDate(testDate.Year(), testDate.Month(), 1)
-	to := from.AddDate(0, 1, 0)
+	to := from.AddDate(0, 1, -1)
 	userID := "sample"
 	var (
 		thirtyDays []time.Time          = make([]time.Time, 30)
@@ -282,6 +285,9 @@ func TestListInMonth(t *testing.T) {
 			results, err := c.ListInMonth(test.input.now.Year(), test.input.now.Month(), test.input.userID)
 			if err != nil {
 				t.Error(err)
+			}
+			if len(results) == 0 {
+				t.Error("no results")
 			}
 			for i, result := range results {
 				if !isSameSleepRecord(result, test.want[i], t) {

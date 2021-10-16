@@ -59,7 +59,7 @@ func (s *SleepRecordClient) ListInMonth(year int, month time.Month, userID strin
 	to := from.AddDate(0, 1, 0)
 
 	sr := make([]entity.SleepRecord, 0, 31)
-	if err := s.Table.Get("UserID", userID).Filter("'TimeW' > ? AND 'TimeW' <= ?", userID, from.Unix(), to.Unix()).Order(dynamo.Descending).All(&sr); err != nil {
+	if err := s.Table.Get("UserID", userID).Filter("'TimeW' > ? AND 'TimeW' <= ?", from.Unix(), to.Unix()).Order(dynamo.Descending).All(&sr); err != nil {
 		return nil, err
 	}
 	return sr, nil
