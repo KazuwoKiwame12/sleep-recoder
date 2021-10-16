@@ -1,4 +1,4 @@
-name: deploy3
+name: CD
 on:
   push:
     branches: 
