@@ -2,10 +2,15 @@ name: CI
 
 on: 
   push:
+    paths:
+      - 'sleep-manager/**'
+      - 'notify/**'
     branches:
       - "main"
   pull_request:
-
+    paths:
+      - 'sleep-manager/**'
+      - 'notify/**'
 jobs:
   test:
     runs-on: ubuntu-latest
