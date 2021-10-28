@@ -9,7 +9,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/guregu/dynamo"
 )
 
 var (
@@ -18,32 +17,39 @@ var (
 
 func TestListInWeek(t *testing.T) {
 	c := getClient()
-	userID := "sample"
+	userIDs := []string{"1", "2"}
 	var (
-		weekDays []time.Time          = make([]time.Time, 5)
-		want     []entity.SleepRecord = make([]entity.SleepRecord, 5) //降順データ
+		weekDays      []time.Time = make([]time.Time, 7)
+		wantUserIDOne             = make([]entity.SleepRecord, 7)
+		wantUserIDTwo             = make([]entity.SleepRecord, 7)
+		wants                     = [][]entity.SleepRecord{wantUserIDOne, wantUserIDTwo}
 	)
+
 	for i := 0; i < len(weekDays); i++ {
-		date := testDate.AddDate(0, 0, -1*i)
+		date := testDate.AddDate(0, 0, -6+(1*i))
 		weekDays[i] = utility.CreateStartDate(date.Year(), date.Month(), utility.GetCorrectDayWithHour(date.Day(), date.Hour()))
-		item := entity.SleepRecord{
-			Date:     weekDays[i],
-			UserID:   userID,
-			TimeB:    date.Unix(),
-			TimeW:    date.Add(7 * time.Hour).Unix(),
-			Duration: (7 * time.Hour).Hours(),
+		for j, id := range userIDs {
+			item := entity.SleepRecord{
+				Date:     weekDays[i],
+				UserID:   id,
+				TimeB:    date.Unix(),
+				TimeW:    date.Add(7 * time.Hour).Unix(),
+				Duration: (7 * time.Hour).Hours(),
+			}
+			item.AdjustDuration()
+			if err := c.Table.Put(item).Run(); err != nil {
+				t.Error(err)
+			}
+			wants[j][i] = item
 		}
-		item.AdjustDuration()
-		if err := c.Table.Put(item).Run(); err != nil {
-			t.Error(err)
-		}
-		want[i] = item
 	}
 
 	t.Cleanup(func() {
 		for _, date := range weekDays {
-			if err := c.Table.Delete("UserID", userID).Range("Date", date).Run(); err != nil {
-				t.Error(err)
+			for _, id := range userIDs {
+				if err := c.Table.Delete("UserID", id).Range("Date", date).Run(); err != nil {
+					t.Error(err)
+				}
 			}
 		}
 	})
@@ -51,35 +57,39 @@ func TestListInWeek(t *testing.T) {
 	tests := []struct {
 		name  string
 		input struct {
-			now    time.Time
-			userID string
+			now time.Time
 		}
-		want []entity.SleepRecord
+		want [][]entity.SleepRecord
 	}{
 		{
 			name: "success",
 			input: struct {
-				now    time.Time
-				userID string
+				now time.Time
 			}{
-				now:    testDate,
-				userID: userID,
+				now: testDate,
 			},
-			want: want,
+			want: wants,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			results, err := c.ListInWeek(test.input.now, test.input.userID)
+			results, err := c.ListInWeekForAllUser(test.input.now)
 			if err != nil {
 				t.Error(err)
 			}
 			if len(results) == 0 {
 				t.Error("no results")
 			}
-			for i, result := range results {
-				if !isSameSleepRecord(result, test.want[i], t) {
+			// userID=1
+			for i, result := range results[:7] {
+				if !isSameSleepRecord(result, test.want[0][i], t) {
+					t.Errorf("unmatched error: result[%d] is %v, want[%d] is %v", i, result, i, test.want[i])
+				}
+			}
+			// userID=2
+			for i, result := range results[:7] {
+				if !isSameSleepRecord(result, test.want[1][i], t) {
 					t.Errorf("unmatched error: result[%d] is %v, want[%d] is %v", i, result, i, test.want[i])
 				}
 			}

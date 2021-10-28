@@ -2,6 +2,7 @@ package db
 
 import (
 	"notify/entity"
+	"sort"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -20,10 +21,12 @@ func NewSleepRecordClient(tableName string, session *session.Session, config *aw
 	}
 }
 
-func (s *SleepRecordClient) ListInWeek(now time.Time, userID string) ([]entity.SleepRecord, error) {
-	sr := make([]entity.SleepRecord, 0, 7)
-	if err := s.Table.Get("UserID", userID).Filter("'TimeW' > ?", now.AddDate(0, 0, -6).Unix()).Order(dynamo.Descending).All(&sr); err != nil {
+func (s *SleepRecordClient) ListInWeekForAllUser(now time.Time) ([]entity.SleepRecord, error) {
+	srs := []entity.SleepRecord{}
+	if err := s.Table.Scan().Filter("'TimeW' > ?", now.AddDate(0, 0, -6).Unix()).All(&srs); err != nil {
 		return nil, err
 	}
-	return sr, nil
+	sort.SliceStable(srs, func(i, j int) bool { return srs[i].TimeW < srs[j].TimeW })
+	sort.SliceStable(srs, func(i, j int) bool { return srs[i].UserID < srs[j].UserID })
+	return srs, nil
 }
