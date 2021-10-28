@@ -47,31 +47,3 @@ func TestGetCorrectDayWithHour(t *testing.T) {
 		})
 	}
 }
-
-func TestValidateBedintime(t *testing.T) {
-	tests := []struct {
-		name    string
-		input   int
-		wantErr bool
-	}{
-		{
-			name:    "failed to sleep in p.m 0 ~ p.m 9",
-			input:   13,
-			wantErr: true,
-		},
-		{
-			name:  "success",
-			input: 22,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			err := utility.ValidateBedintime(test.input)
-			result := err != nil
-			if result != test.wantErr {
-				t.Errorf("unmatched error: result is %v, want is %v", result, test.wantErr)
-			}
-		})
-	}
-}
