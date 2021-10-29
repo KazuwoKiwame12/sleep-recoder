@@ -75,6 +75,7 @@ func main() {
 			log.Fatal(err)
 		}
 		// lineに通知
+		fmt.Println(lineBot, url) // lintでエラーを出させないため
 	}
 }
 
