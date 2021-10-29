@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"notify/bucket"
 	"notify/db"
 	"notify/utility"
 	"os"
@@ -17,6 +18,7 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
+// TODO log.Fatalにするか、Printにするかを要考慮...止まらずに次の処理をして欲しいときはPrintに修正する
 func main() {
 	// line_botの作成
 	lineBot, err := linebot.New(
@@ -63,6 +65,13 @@ func main() {
 		srs = srs[numOfSrs:] // 取得したデータ数削除する
 		// グラフの画像を作成する
 		if err := createPlotImage(id, data); err != nil {
+			log.Fatal(err)
+		}
+		// s3にuploadする
+		sessForS3 := session.Must(session.NewSession(&aws.Config{Region: aws.String("ap-northeast-3")}))
+		uploader := bucket.NewImageUploader(sessForS3, os.Getenv("BUCKET_NAME"), fmt.Sprintf("sleeprecord-plot_%s.png", id))
+		url, err := uploader.UploadImage(fmt.Sprintf("sleeprecord-plot_%s.png", id))
+		if err != nil {
 			log.Fatal(err)
 		}
 		// lineに通知
