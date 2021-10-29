@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"notify/db"
 	"notify/utility"
 	"os"
@@ -50,7 +51,14 @@ func main() {
 			}
 			index := utility.GetDiffOfDays(utility.CreateDateWithUnix(sr.TimeW), utility.CreateDateWIthJst().AddDate(0, 0, -6))
 
-			data[index] = plotter.Values{sr.TimeB, sr.TimeW}
+			wakeDate := utility.CreateDateWithUnix(sr.TimeW)
+			wakeStartDate := utility.CreateStartDate(wakeDate.Year(), wakeDate.Month(), wakeDate.Day())
+			bedinHour := utility.CreateDateWithUnix(sr.TimeB).Sub(wakeStartDate).Hours()
+			wakeHour := wakeDate.Sub(wakeStartDate).Hours()
+			data[index] = plotter.Values{
+				math.Round(bedinHour*10) / 10,
+				math.Round(wakeHour*10) / 10,
+			}
 		}
 		srs = srs[numOfSrs:] // 取得したデータ数削除する
 		// グラフの画像を作成する
@@ -77,10 +85,11 @@ func createPlotImage(id string, data []plotter.Values) error {
 		fmt.Sprintf("%d/%d", int(now.AddDate(0, 0, -1).Month()), now.AddDate(0, 0, -1).Day()), data[1],
 		fmt.Sprintf("%d/%d", int(now.Month()), now.Day()), data[0],
 	); err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := p.Save(12*vg.Inch, 7*vg.Inch, fmt.Sprintf("sleeprecord-plot_%s.png", id)); err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
