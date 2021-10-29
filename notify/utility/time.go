@@ -1,6 +1,7 @@
 package utility
 
 import (
+	"math"
 	"time"
 )
 
@@ -18,6 +19,17 @@ func CreateStartDate(y int, m time.Month, d int) time.Time {
 func CreateDateWIthJst() time.Time {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	return time.Now().In(jst)
+}
+
+func CreateDateWithUnix(unix int64) time.Time {
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	return time.Unix(unix, 0).In(jst)
+}
+
+func GetDiffOfDays(a, b time.Time) int {
+	aStartDate := CreateStartDate(a.Year(), a.Month(), a.Day())
+	bStartDate := CreateStartDate(b.Year(), b.Month(), b.Day())
+	return int(math.Abs(aStartDate.Sub(bStartDate).Hours() / 24.0))
 }
 
 func GetCorrectDayWithHour(day, hour int) int {
