@@ -2,6 +2,7 @@ package entity
 
 import (
 	"math"
+	"sort"
 	"time"
 )
 
@@ -15,4 +16,24 @@ type SleepRecord struct {
 
 func (s *SleepRecord) AdjustDuration() {
 	s.Duration = math.Round(s.Duration*10) / 10
+}
+
+type SleepRecords []SleepRecord
+
+func (ss SleepRecords) RetrieveUserIDs() []string {
+	set := map[string]struct{}{}
+	for _, s := range ss {
+		if _, ok := set[s.UserID]; ok {
+			continue
+		}
+		set[s.UserID] = struct{}{}
+	}
+	ids := make([]string, len(set))
+	i := 0
+	for id, _ := range set {
+		ids[i] = id
+		i++
+	}
+	sort.SliceStable(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	return ids
 }

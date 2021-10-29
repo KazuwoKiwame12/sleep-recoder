@@ -20,9 +20,9 @@ func TestListInWeek(t *testing.T) {
 	userIDs := []string{"1", "2"}
 	var (
 		weekDays      []time.Time = make([]time.Time, 7)
-		wantUserIDOne             = make([]entity.SleepRecord, 7)
-		wantUserIDTwo             = make([]entity.SleepRecord, 7)
-		wants                     = [][]entity.SleepRecord{wantUserIDOne, wantUserIDTwo}
+		wantUserIDOne             = make(entity.SleepRecords, 7)
+		wantUserIDTwo             = make(entity.SleepRecords, 7)
+		wants                     = []entity.SleepRecords{wantUserIDOne, wantUserIDTwo}
 	)
 
 	for i := 0; i < len(weekDays); i++ {
@@ -59,7 +59,7 @@ func TestListInWeek(t *testing.T) {
 		input struct {
 			now time.Time
 		}
-		want [][]entity.SleepRecord
+		want []entity.SleepRecords
 	}{
 		{
 			name: "success",

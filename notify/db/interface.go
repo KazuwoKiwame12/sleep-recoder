@@ -7,5 +7,5 @@ import (
 )
 
 type Client interface {
-	ListInWeek(time.Time, string) ([]entity.SleepRecord, error)
+	ListInWeek(time.Time, string) (entity.SleepRecords, error)
 }

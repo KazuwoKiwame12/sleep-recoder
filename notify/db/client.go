@@ -21,8 +21,8 @@ func NewSleepRecordClient(tableName string, session *session.Session, config *aw
 	}
 }
 
-func (s *SleepRecordClient) ListInWeekForAllUser(now time.Time) ([]entity.SleepRecord, error) {
-	srs := []entity.SleepRecord{}
+func (s *SleepRecordClient) ListInWeekForAllUser(now time.Time) (entity.SleepRecords, error) {
+	srs := entity.SleepRecords{}
 	if err := s.Table.Scan().Filter("'TimeW' > ?", now.AddDate(0, 0, -6).Unix()).All(&srs); err != nil {
 		return nil, err
 	}
