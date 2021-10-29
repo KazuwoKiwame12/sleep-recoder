@@ -6,3 +6,13 @@ services:
     container_name: dynamodb
     ports:
       - 8000:8000
+  s3:
+    image: minio/minio
+    container_name: s3
+    ports: 
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ACCESS_KEY: SAMPLE
+      MINIO_SECRET_KEY: SAMPLESAMPLESAMPLE
+    command: server /data --console-address ":9001"

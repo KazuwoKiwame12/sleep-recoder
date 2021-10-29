@@ -33,6 +33,19 @@ jobs:
           AWS_ACCESS_KEY_ID: hoge
           AWS_SECRET_ACCESS_KEY: hoge
           AWS_DEFAULT_REGION: ap-northeast-3
+      - name: Setup S3 Local
+        run: |
+          docker run -d -p 9000:9000 \
+                    -e "MINIO_ACCESS_KEY=SAMPLE" \
+                    -e "MINIO_SECRET_KEY=SAMPLESAMPLESAMPLE" \
+                    minio/minio server /data
+      - name: Create S3 Bucket
+        run: |
+          aws s3 mb s3://static --endpoint-url http://localhost:9000
+        env: 
+          AWS_ACCESS_KEY_ID: SAMPLE
+          AWS_SECRET_ACCESS_KEY: SAMPLESAMPLESAMPLE
+          AWS_DEFAULT_REGION: ap-northeast-3
       - name: cache
         uses: actions/cache@v2
         with:

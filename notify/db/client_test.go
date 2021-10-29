@@ -84,13 +84,13 @@ func TestListInWeek(t *testing.T) {
 			// userID=1
 			for i, result := range results[:7] {
 				if !isSameSleepRecord(result, test.want[0][i], t) {
-					t.Errorf("unmatched error: result[%d] is %v, want[%d] is %v", i, result, i, test.want[i])
+					t.Errorf("unmatched error for userID=1: result[%d] is %v, want[%d] is %v", i, result, i, test.want[0][i])
 				}
 			}
 			// userID=2
-			for i, result := range results[:7] {
+			for i, result := range results[7:] {
 				if !isSameSleepRecord(result, test.want[1][i], t) {
-					t.Errorf("unmatched error: result[%d] is %v, want[%d] is %v", i, result, i, test.want[i])
+					t.Errorf("unmatched error for userID=2: result[%d] is %v, want[%d] is %v", i, result, i, test.want[1][i])
 				}
 			}
 		})
