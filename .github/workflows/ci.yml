@@ -40,20 +40,32 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Get dependencies
+      - name: Get slee-manager dependencies
         run: cd sleep-manager && go mod download
-      - name: test
+      - name: test for sleep-manager
         env:
           AWS_ACCESS_KEY_ID: hoge
           AWS_SECRET_ACCESS_KEY: hoge
         run: cd sleep-manager && go test ./...
+      - name: Get notify dependencies
+        run: cd notify && go mod download
+      - name: test for notify
+        env:
+          AWS_ACCESS_KEY_ID: hoge
+          AWS_SECRET_ACCESS_KEY: hoge
+        run: cd notify && go test ./...
 
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: golangci-lint
+      - name: golangci-lint for sleep-manager
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.42.0
           working-directory: sleep-manager
+      - name: golangci-lint for notify
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.42.0
+          working-directory: notify
