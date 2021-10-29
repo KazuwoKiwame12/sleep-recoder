@@ -1,15 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"notify/db"
-	"notify/entity"
 	"notify/utility"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/line/line-bot-sdk-go/linebot"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/plotutil"
+	"gonum.org/v1/plot/vg"
 )
 
 func main() {
@@ -37,7 +41,7 @@ func main() {
 
 	// 上記の睡眠記録データを用いてグラフの作成
 	for _, id := range userIDs {
-		data := make([]entity.PlotData, 7) // ユーザ一人のグラフデータ
+		data := make([]plotter.Values, 7) // ユーザ一人のグラフデータ
 		numOfSrs := 0
 		for i, sr := range srs { //srsはuserIDとtimeWの昇順で並んでいる
 			if id != sr.UserID {
@@ -46,13 +50,37 @@ func main() {
 			}
 			index := utility.GetDiffOfDays(utility.CreateDateWithUnix(sr.TimeW), utility.CreateDateWIthJst().AddDate(0, 0, -6))
 
-			data[index] = entity.PlotData{
-				TimeB: sr.TimeB,
-				TimeW: sr.TimeW,
-			}
+			data[index] = plotter.Values{sr.TimeB, sr.TimeW}
 		}
 		srs = srs[numOfSrs:] // 取得したデータ数削除する
 		// グラフの画像を作成する
+		if err := createPlotImage(id, data); err != nil {
+			log.Fatal(err)
+		}
 		// lineに通知
+	}
+}
+
+func createPlotImage(id string, data []plotter.Values) error {
+	p := plot.New()
+
+	p.Title.Text = "Sleep Record for a week"
+	p.Y.Label.Text = "time(based AM0:00)"
+
+	now := utility.CreateDateWIthJst()
+	if err := plotutil.AddBoxPlots(p, vg.Points(20),
+		fmt.Sprintf("%d/%d", int(now.AddDate(0, 0, -6).Month()), now.AddDate(0, 0, -6).Day()), data[6],
+		fmt.Sprintf("%d/%d", int(now.AddDate(0, 0, -5).Month()), now.AddDate(0, 0, -5).Day()), data[5],
+		fmt.Sprintf("%d/%d", int(now.AddDate(0, 0, -4).Month()), now.AddDate(0, 0, -4).Day()), data[4],
+		fmt.Sprintf("%d/%d", int(now.AddDate(0, 0, -3).Month()), now.AddDate(0, 0, -3).Day()), data[3],
+		fmt.Sprintf("%d/%d", int(now.AddDate(0, 0, -2).Month()), now.AddDate(0, 0, -2).Day()), data[2],
+		fmt.Sprintf("%d/%d", int(now.AddDate(0, 0, -1).Month()), now.AddDate(0, 0, -1).Day()), data[1],
+		fmt.Sprintf("%d/%d", int(now.Month()), now.Day()), data[0],
+	); err != nil {
+		panic(err)
+	}
+
+	if err := p.Save(12*vg.Inch, 7*vg.Inch, fmt.Sprintf("sleeprecord-plot_%s.png", id)); err != nil {
+		log.Fatal(err)
 	}
 }
