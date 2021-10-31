@@ -35,7 +35,8 @@ func main() {
 	client := db.NewSleepRecordClient(tableName, sess, config)
 
 	// db処理で1週間分のデータを読み込む
-	srs, err := client.ListInWeekForAllUser(utility.CreateDateWIthJst())
+	nowJST := utility.CreateDateWIthJst()
+	srs, err := client.ListInWeekForAllUser(nowJST)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,7 +52,7 @@ func main() {
 				numOfSrs = i
 				break
 			}
-			index := utility.GetDiffOfDays(utility.CreateDateWithUnix(sr.TimeW), utility.CreateDateWIthJst().AddDate(0, 0, -6))
+			index := utility.GetDiffOfDays(utility.CreateDateWithUnix(sr.TimeW), nowJST.AddDate(0, 0, -6))
 
 			wakeDate := utility.CreateDateWithUnix(sr.TimeW)
 			wakeStartDate := utility.CreateStartDate(wakeDate.Year(), wakeDate.Month(), wakeDate.Day())
@@ -64,13 +65,13 @@ func main() {
 		}
 		srs = srs[numOfSrs:] // 取得したデータ数削除する
 		// グラフの画像を作成する
-		if err := createPlotImage(id, data); err != nil {
+		if err := createPlotImage(data); err != nil {
 			log.Fatal(err)
 		}
 		// s3にuploadする
 		sessForS3 := session.Must(session.NewSession(&aws.Config{Region: aws.String("ap-northeast-3")}))
-		uploader := bucket.NewImageUploader(sessForS3, os.Getenv("BUCKET_NAME"), fmt.Sprintf("sleeprecord-plot_%s.png", id))
-		url, err := uploader.UploadImage(fmt.Sprintf("sleeprecord-plot_%s.png", id))
+		uploader := bucket.NewImageUploader(sessForS3, os.Getenv("BUCKET_NAME"), fmt.Sprintf("sleeprecord-plot_%s_%d-%v-%d.png", id, nowJST.Year(), nowJST.Month(), nowJST.Day()))
+		url, err := uploader.UploadImage("sleeprecord-plot.png")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -79,7 +80,7 @@ func main() {
 	}
 }
 
-func createPlotImage(id string, data []plotter.Values) error {
+func createPlotImage(data []plotter.Values) error {
 	p := plot.New()
 
 	p.Title.Text = "Sleep Record for a week"
@@ -98,7 +99,7 @@ func createPlotImage(id string, data []plotter.Values) error {
 		return err
 	}
 
-	if err := p.Save(12*vg.Inch, 7*vg.Inch, fmt.Sprintf("sleeprecord-plot_%s.png", id)); err != nil {
+	if err := p.Save(12*vg.Inch, 7*vg.Inch, "sleeprecord-plot.png"); err != nil {
 		return err
 	}
 	return nil
