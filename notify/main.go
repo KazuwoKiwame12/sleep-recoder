@@ -21,7 +21,7 @@ import (
 // TODO log.Fatalにするか、Printにするかを要考慮...止まらずに次の処理をして欲しいときはPrintに修正する
 func main() {
 	// line_botの作成
-	lineBot, err := linebot.New(
+	bot, err := linebot.New(
 		os.Getenv("LINE_CHANNEL_SECRET"),
 		os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"),
 	)
@@ -76,7 +76,11 @@ func main() {
 			log.Fatal(err)
 		}
 		// lineに通知
-		fmt.Println(lineBot, url) // lintでエラーを出させないため
+		msg := linebot.NewImageMessage(url, url)
+		_, err = bot.PushMessage(id, msg).Do()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
