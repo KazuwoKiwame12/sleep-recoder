@@ -1,5 +1,7 @@
 # sleep-recorder
 このアプリでは，LINEを通して簡単に睡眠時間をお手軽に記録し、1週間・1ヶ月の**睡眠情報**やその**評価**を**簡単に可視化**する
+<img width="290" alt="スクリーンショット 2021-11-01 21 29 42" src="https://user-images.githubusercontent.com/39262724/139671550-6f9a7100-757a-4ae6-a6ca-d59349c26e11.png">
+
 - 対象: 自分の睡眠状態を簡単に記録・評価・可視化したい人向けのアプリケーション
 - 目的: このアプリを通して自身の睡眠を振り返り、規則正しく、理想とする睡眠習慣・生活習慣を掴み取ること
 
@@ -85,7 +87,8 @@ Golang * Serverless Application Model * Line Messaging API
 
 ### 睡眠記録のグラフ表示
 <img width="1004" alt="グラフ_1" src="https://user-images.githubusercontent.com/39262724/139667955-40eac79c-7fc2-4bca-9309-238a9af93ce2.png">
-![グラフ_2](https://user-images.githubusercontent.com/39262724/139667963-bf1e22f8-2bd1-4ef1-b8c1-8f469bf6b518.jpg)
+<img width="1004" alt="グラフ_2" src="https://user-images.githubusercontent.com/39262724/139667963-bf1e22f8-2bd1-4ef1-b8c1-8f469bf6b518.jpg">
+
 
 ※ 現時点(2021/11/1)のグラフのUIがあまり良くないと考えているので、今後改善していきます
 
