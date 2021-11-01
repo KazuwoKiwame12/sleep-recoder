@@ -46,7 +46,7 @@ func main() {
 
 	// 上記の睡眠記録データを用いてグラフの作成
 	for _, id := range userIDs {
-		data := make([]plotter.Values, 7) // ユーザ一人のグラフデータ
+		data := []plotter.Values{{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}} // ユーザ一人のグラフデータ
 		numOfSrs := 0
 		for i, sr := range srs { //srsはuserIDとtimeWの昇順で並んでいる
 			if id != sr.UserID {
