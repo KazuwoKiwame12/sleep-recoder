@@ -40,9 +40,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	// 全てのuserIDの抽出
 	userIDs := srs.RetrieveUserIDs() //昇順データ
 	log.Printf("userIDs: %v\n", userIDs)
+
+	// グラフ用画像の作成(tmp folder内のファイルのみ書き込み可能っぽい)
+	// ref https://aws.amazon.com/jp/blogs/compute/choosing-between-aws-lambda-data-storage-options-in-web-apps/
+	if _, err := os.Create("tmp/sleeprecord-plot.png"); err != nil {
+		log.Fatalf("not exist dir: %v", err)
+	}
 
 	// 上記の睡眠記録データを用いてグラフの作成
 	for _, id := range userIDs {
@@ -78,7 +85,7 @@ func main() {
 		// s3にuploadする
 		sessForS3 := session.Must(session.NewSession(&aws.Config{Region: aws.String("ap-northeast-3")}))
 		uploader := bucket.NewImageUploader(sessForS3, os.Getenv("BUCKET_NAME"), fmt.Sprintf("sleeprecord-plot_%s_%d-%v-%d.png", id, nowJST.Year(), nowJST.Month(), nowJST.Day()))
-		url, err := uploader.UploadImage("sleeprecord-plot.png")
+		url, err := uploader.UploadImage("tmp/sleeprecord-plot.png")
 		if err != nil {
 			log.Printf("error(UploadImage): %v\n", err)
 			msg := linebot.NewTextMessage("システム内でエラーが発生しました")
@@ -115,7 +122,7 @@ func createPlotImage(data []plotter.Values) error {
 		return err
 	}
 
-	if err := p.Save(12*vg.Inch, 7*vg.Inch, "sleeprecord-plot.png"); err != nil {
+	if err := p.Save(12*vg.Inch, 7*vg.Inch, "tmp/sleeprecord-plot.png"); err != nil {
 		return err
 	}
 	return nil
