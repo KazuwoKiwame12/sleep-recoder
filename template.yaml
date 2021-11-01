@@ -53,7 +53,6 @@ Resources:
             Description: notify abut weekly sleep record data to user
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
-          DYNAMODB_ENDPOINT: ""
           DYNAMODB_TABLE_NAME: SleepRecord
           LINE_CHANNEL_SECRET: ""
           LINE_CHANNEL_ACCESS_TOKEN: ""
@@ -62,7 +61,7 @@ Resources:
   ImageBucket:
     Type: AWS::S3::Bucket
     Properties:
-      AccessControl: PublicRead
+      AccessControl: Private
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
