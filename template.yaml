@@ -30,27 +30,59 @@ Resources:
           DYNAMODB_TABLE_NAME: SleepRecord
           LINE_CHANNEL_SECRET: ""
           LINE_CHANNEL_ACCESS_TOKEN: ""
-  # NotifyFnction:
-  #   Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-  #   Properties:
-  #     CodeUri: notify/
-  #     Handler: notify
-  #     Runtime: go1.x
-  #     Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
-  #     Policies: AmazonDynamoDBFullAccess
-  #     Events:
-  #       NotifySchedule:
-  #         Type: Schedule
-  #         Properties:
-  #           Schedule: 'cron(0 23 ? * MON *)'
-  #           Name: NotifySchedule
-  #           Description: notify abut weekly sleep record data to user
-  #     Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
-  #       Variables:
-  #         DYNAMODB_ENDPOINT: ""
-  #         DYNAMODB_TABLE_NAME: SleepRecord
-  #         LINE_CHANNEL_SECRET: ""
-  #         LINE_CHANNEL_ACCESS_TOKEN: ""  
+
+  NotifyFnction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: notify/
+      Handler: notify
+      Runtime: go1.x
+      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Policies: 
+        - S3CrudPolicy:
+            BucketName: !Ref ImageBucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SleepRecordDynamoDBTable
+      Events:
+        NotifySchedule:
+          Type: Schedule
+          Properties:
+            # Schedule: 'cron(0 23 ? * MON *)'
+            Schedule: 'rate(5 minutes)'
+            Name: NotifySchedule
+            Description: notify abut weekly sleep record data to user
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DYNAMODB_ENDPOINT: ""
+          DYNAMODB_TABLE_NAME: SleepRecord
+          LINE_CHANNEL_SECRET: ""
+          LINE_CHANNEL_ACCESS_TOKEN: ""
+
+  ImageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - '*'
+            ExposedHeaders:
+              - Date
+            Id: myCORSRuleId1
+            MaxAge: 3600
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucket
+        LogFilePrefix: testing-logs
+
+  LoggingBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: LogDeliveryWrite
+
   SleepRecordDynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:

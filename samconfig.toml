@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "sleep-recorder"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-eav0su9ig7ki"
+s3_prefix = "sleep-recorder"
+region = "ap-northeast-3"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
