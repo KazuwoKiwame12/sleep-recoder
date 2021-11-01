@@ -68,10 +68,10 @@ func main() {
 		log.Printf("data[%s]: %v\n", id, data)
 		// グラフの画像を作成する
 		if err := createPlotImage(data); err != nil {
-			log.Println(err)
+			log.Printf("error(createPlotImage): %v\n", err)
 			msg := linebot.NewTextMessage("睡眠記録のグラフ化ができませんでした")
 			if _, err := bot.PushMessage(id, msg).Do(); err != nil {
-				log.Println(err)
+				log.Printf("error(pushMessage at 74): %v\n", err)
 			}
 			continue
 		}
@@ -80,18 +80,17 @@ func main() {
 		uploader := bucket.NewImageUploader(sessForS3, os.Getenv("BUCKET_NAME"), fmt.Sprintf("sleeprecord-plot_%s_%d-%v-%d.png", id, nowJST.Year(), nowJST.Month(), nowJST.Day()))
 		url, err := uploader.UploadImage("sleeprecord-plot.png")
 		if err != nil {
-			log.Println(err)
+			log.Printf("error(UploadImage): %v\n", err)
 			msg := linebot.NewTextMessage("システム内でエラーが発生しました")
 			if _, err := bot.PushMessage(id, msg).Do(); err != nil {
-				log.Println(err)
+				log.Printf("error(pushMessage at 86): %v\n", err)
 			}
 			continue
 		}
 		// lineに通知
 		msg := linebot.NewImageMessage(url, url)
-		_, err = bot.PushMessage(id, msg).Do()
-		if err != nil {
-			log.Println(err)
+		if _, err := bot.PushMessage(id, msg).Do(); err != nil {
+			log.Printf("error(pushMessage at 94): %v\n", err)
 			continue
 		}
 	}
