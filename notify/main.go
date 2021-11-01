@@ -18,7 +18,6 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-// TODO log.Fatalにするか、Printにするかを要考慮...止まらずに次の処理をして欲しいときはPrintに修正する
 func main() {
 	// line_botの作成
 	bot, err := linebot.New(
