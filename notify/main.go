@@ -112,7 +112,7 @@ func createPlotImage(data []plotter.Values) error {
 	p.Y.Label.Text = "time(based AM0:00)"
 
 	now := utility.CreateDateWIthJst()
-	if err := plotutil.AddBoxPlots(p, vg.Points(20),
+	if err := plotutil.AddBoxPlots(p, vg.Points(50),
 		fmt.Sprintf("%d/%d", int(now.AddDate(0, 0, -6).Month()), now.AddDate(0, 0, -6).Day()), data[6],
 		fmt.Sprintf("%d/%d", int(now.AddDate(0, 0, -5).Month()), now.AddDate(0, 0, -5).Day()), data[5],
 		fmt.Sprintf("%d/%d", int(now.AddDate(0, 0, -4).Month()), now.AddDate(0, 0, -4).Day()), data[4],
