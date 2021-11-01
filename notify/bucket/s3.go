@@ -43,7 +43,7 @@ func (i *ImageUploader) UploadImage(imagePath string) (string, error) {
 		Bucket: i.bucket,
 		Key:    i.key,
 	})
-	url, err := req.Presign(15 * time.Minute)
+	url, err := req.Presign(7 * 24 * time.Hour)
 	if err != nil {
 		return "", err
 	}
