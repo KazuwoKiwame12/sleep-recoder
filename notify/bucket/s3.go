@@ -11,16 +11,16 @@ import (
 )
 
 type ImageUploader struct {
-	uploader *s3.S3
-	bucket   *string
-	key      *string
+	client *s3.S3
+	bucket *string
+	key    *string
 }
 
 func NewImageUploader(sess *session.Session, bucket, key string) *ImageUploader {
 	return &ImageUploader{
-		uploader: s3.New(sess),
-		bucket:   aws.String(bucket),
-		key:      aws.String(key),
+		client: s3.New(sess),
+		bucket: aws.String(bucket),
+		key:    aws.String(key),
 	}
 }
 
@@ -30,12 +30,19 @@ func (i *ImageUploader) UploadImage(imagePath string) (string, error) {
 		return "", err
 	}
 	defer image.Close()
-	req, _ := i.uploader.PutObjectRequest(&s3.PutObjectInput{
+	req, _ := i.client.PutObjectRequest(&s3.PutObjectInput{
 		Bucket: i.bucket,
 		Key:    i.key,
 		Body:   image,
 	})
+	if err := req.Send(); err != nil {
+		return "", nil
+	}
 
+	req, _ = i.client.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: i.bucket,
+		Key:    i.key,
+	})
 	url, err := req.Presign(15 * time.Minute)
 	if err != nil {
 		return "", err
