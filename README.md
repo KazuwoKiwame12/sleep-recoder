@@ -50,7 +50,10 @@ issueとかで機能の要望などを送ってもらえると嬉しいです！
     - GithubAction
 
 ## システム構成
-Golang * Serverless Application Model * Line Messaging API
+**Golang * Serverless Application Model * Line Messaging API**
+
+![アーキテクチャ](https://user-images.githubusercontent.com/39262724/139680118-66d677bc-8ba5-4780-b1ca-aa123dcb1841.png)
+
 
 ## 機能イメージ
 ### アプリ説明取得
