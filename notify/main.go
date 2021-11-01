@@ -43,7 +43,6 @@ func main() {
 
 	// 全てのuserIDの抽出
 	userIDs := srs.RetrieveUserIDs() //昇順データ
-	log.Printf("userIDs: %v\n", userIDs)
 
 	// グラフ用画像の作成(tmp folder内のファイルのみ書き込み可能っぽい)
 	// ref https://aws.amazon.com/jp/blogs/compute/choosing-between-aws-lambda-data-storage-options-in-web-apps/
@@ -73,7 +72,6 @@ func main() {
 			}
 		}
 		srs = srs[numOfSrs:] // 取得したデータ数削除する
-		log.Printf("data[%s]: %v\n", id, data)
 		// グラフの画像を作成する
 		if err := createPlotImage(data); err != nil {
 			log.Printf("error(createPlotImage): %v\n", err)
@@ -86,7 +84,6 @@ func main() {
 		// s3にuploadする
 		sessForS3 := session.Must(session.NewSession(&aws.Config{Region: aws.String("ap-northeast-3")}))
 		uploader := bucket.NewImageUploader(sessForS3, os.Getenv("BUCKET_NAME"), fmt.Sprintf("%s-%d-%d-%d.png", id, nowJST.Year(), int(nowJST.Month()), nowJST.Day()))
-		log.Printf("KEY: %s\n", fmt.Sprintf("%s-%d-%d-%d.png", id, nowJST.Year(), int(nowJST.Month()), nowJST.Day()))
 		url, err := uploader.UploadImage("/tmp/sleeprecord.png")
 		if err != nil {
 			log.Printf("error(UploadImage): %v\n", err)

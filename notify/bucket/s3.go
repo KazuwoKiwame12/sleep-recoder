@@ -1,7 +1,6 @@
 package bucket
 
 import (
-	"log"
 	"os"
 	"time"
 
@@ -47,8 +46,6 @@ func (i *ImageUploader) UploadImage(imagePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	log.Printf("url: %s\n", url)
 
 	return url, nil
 }
