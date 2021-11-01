@@ -56,16 +56,10 @@ jobs:
       - name: Get slee-manager dependencies
         run: cd sleep-manager && go mod download
       - name: test for sleep-manager
-        env:
-          AWS_ACCESS_KEY_ID: hoge
-          AWS_SECRET_ACCESS_KEY: hoge
         run: cd sleep-manager && go test ./...
       - name: Get notify dependencies
         run: cd notify && go mod download
       - name: test for notify
-        env:
-          AWS_ACCESS_KEY_ID: hoge
-          AWS_SECRET_ACCESS_KEY: hoge
         run: cd notify && go test ./...
 
   lint:

@@ -14,10 +14,11 @@ import (
 
 var (
 	testDate time.Time = utility.CreateStartDate(2021, 10, 15) //2021年10月15日0時0分0秒
-
 )
 
 func TestSaveWakeTime(t *testing.T) {
+	setAWSCredentials(t)
+
 	c := getClient()
 	bedinTime := testDate
 	wakeTime := bedinTime.Add(8 * time.Hour)
@@ -97,6 +98,8 @@ func TestSaveWakeTime(t *testing.T) {
 }
 
 func TestSaveBedinTime(t *testing.T) {
+	setAWSCredentials(t)
+
 	c := getClient()
 	userID := "sample"
 	bedinTime := testDate.Add(time.Hour)
@@ -150,6 +153,8 @@ func TestSaveBedinTime(t *testing.T) {
 }
 
 func TestListInFivedays(t *testing.T) {
+	setAWSCredentials(t)
+
 	c := getClient()
 	userID := "sample"
 	var (
@@ -221,6 +226,8 @@ func TestListInFivedays(t *testing.T) {
 }
 
 func TestListInMonth(t *testing.T) {
+	setAWSCredentials(t)
+
 	c := getClient()
 	from := utility.CreateStartDate(testDate.Year(), testDate.Month(), 1)
 	to := from.AddDate(0, 1, -1)
@@ -299,6 +306,12 @@ func getClient() *db.SleepRecordClient {
 	sess := session.Must(session.NewSession())
 	config := aws.NewConfig().WithRegion("ap-northeast-3").WithEndpoint(endPoint)
 	return db.NewSleepRecordClient(tableName, sess, config)
+}
+
+func setAWSCredentials(t *testing.T) {
+	t.Setenv("AWS_ACCESS_KEY_ID", "hoge")
+	t.Setenv("AWS_SECRET_ACCESS_KEY", "hoge")
+	t.Setenv("AWS_DEFAULT_REGION", "ap-northeast-3")
 }
 
 func isSameSleepRecord(a, b entity.SleepRecord, t *testing.T) bool {

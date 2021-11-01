@@ -16,6 +16,8 @@ var (
 )
 
 func TestListInWeek(t *testing.T) {
+	setAWSCredentials(t)
+
 	c := getClient()
 	userIDs := []string{"1", "2"}
 	var (
@@ -103,6 +105,12 @@ func getClient() *db.SleepRecordClient {
 	sess := session.Must(session.NewSession())
 	config := aws.NewConfig().WithRegion("ap-northeast-3").WithEndpoint(endPoint)
 	return db.NewSleepRecordClient(tableName, sess, config)
+}
+
+func setAWSCredentials(t *testing.T) {
+	t.Setenv("AWS_ACCESS_KEY_ID", "hoge")
+	t.Setenv("AWS_SECRET_ACCESS_KEY", "hoge")
+	t.Setenv("AWS_DEFAULT_REGION", "ap-northeast-3")
 }
 
 func isSameSleepRecord(a, b entity.SleepRecord, t *testing.T) bool {
