@@ -5,39 +5,38 @@ Description: >
   
   Sample SAM Template for sleep-recorder
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 5
 
 Resources:
   SleepManagerFnction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: sleep-manager/
       Handler: sleep-manager
       Runtime: go1.x
-      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Tracing: Active
       Policies: AmazonDynamoDBFullAccess
       Events:
         ExecRequest:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /sleep-manager
             Method: POST
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+      Environment:
         Variables:
           DYNAMODB_TABLE_NAME: SleepRecord
           LINE_CHANNEL_SECRET: ""
           LINE_CHANNEL_ACCESS_TOKEN: ""
 
   NotifyFnction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: notify/
       Handler: notify
       Runtime: go1.x
-      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Tracing: Active
       Policies: 
         - S3CrudPolicy:
             BucketName: !Ref ImageBucket
@@ -47,11 +46,10 @@ Resources:
         NotifySchedule:
           Type: Schedule
           Properties:
-            # Schedule: 'cron(0 23 ? * MON *)'
-            Schedule: 'rate(5 minutes)'
+            Schedule: 'cron(0 23 ? * MON *)'
             Name: NotifySchedule
             Description: notify abut weekly sleep record data to user
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+      Environment:
         Variables:
           DYNAMODB_TABLE_NAME: SleepRecord
           LINE_CHANNEL_SECRET: ""
@@ -100,10 +98,8 @@ Resources:
         ReadCapacityUnits: 3
         WriteCapacityUnits: 2
       TableName: SleepRecord
+      
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   BedinTimeAPI:
     Description: "API Gateway endpoint URL for Prod environment for SleepManager Fnction"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/sleep-manager"
