@@ -7,7 +7,6 @@
 
 ## バッジ
 [![CI](https://github.com/KazuwoKiwame12/sleep-recorder/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/KazuwoKiwame12/sleep-recorder/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/KazuwoKiwame12/sleep-recorder)](/LICENSE)
 
 ## リリース
 Coming soon...  
