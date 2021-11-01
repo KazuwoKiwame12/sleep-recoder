@@ -42,6 +42,7 @@ func main() {
 	}
 	// 全てのuserIDの抽出
 	userIDs := srs.RetrieveUserIDs() //昇順データ
+	log.Printf("userIDs: %v\n", userIDs)
 
 	// 上記の睡眠記録データを用いてグラフの作成
 	for _, id := range userIDs {
@@ -64,6 +65,7 @@ func main() {
 			}
 		}
 		srs = srs[numOfSrs:] // 取得したデータ数削除する
+		log.Printf("data[%s]: %v\n", id, data)
 		// グラフの画像を作成する
 		if err := createPlotImage(data); err != nil {
 			log.Println(err)
