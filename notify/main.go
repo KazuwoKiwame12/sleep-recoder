@@ -86,6 +86,7 @@ func main() {
 		// s3にuploadする
 		sessForS3 := session.Must(session.NewSession(&aws.Config{Region: aws.String("ap-northeast-3")}))
 		uploader := bucket.NewImageUploader(sessForS3, os.Getenv("BUCKET_NAME"), fmt.Sprintf("%s-%d-%v-%d.png", id, nowJST.Year(), int(nowJST.Month()), nowJST.Day()))
+		log.Printf("KEY: %s\n", fmt.Sprintf("%s-%d-%v-%d.png", id, nowJST.Year(), int(nowJST.Month()), nowJST.Day()))
 		url, err := uploader.UploadImage("/tmp/sleeprecord.png")
 		if err != nil {
 			log.Printf("error(UploadImage): %v\n", err)
