@@ -51,8 +51,7 @@ issueとかで機能の要望などを送ってもらえると嬉しいです！
 ## システム構成
 **Golang * Serverless Application Model * Line Messaging API**
 
-![アーキテクチャ](https://user-images.githubusercontent.com/39262724/139680118-66d677bc-8ba5-4780-b1ca-aa123dcb1841.png)
-
+![アーキテクチャ1](https://user-images.githubusercontent.com/39262724/139755439-7d8f388f-205f-45dd-b58d-629b709ac851.png)
 
 ## 機能イメージ
 ### アプリ説明取得
