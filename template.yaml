@@ -57,6 +57,7 @@ Resources:
           DYNAMODB_TABLE_NAME: SleepRecord
           LINE_CHANNEL_SECRET: ""
           LINE_CHANNEL_ACCESS_TOKEN: ""
+          BUCKET_NAME: !Ref ImageBucket
 
   ImageBucket:
     Type: AWS::S3::Bucket
