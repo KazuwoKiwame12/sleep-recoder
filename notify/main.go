@@ -66,20 +66,31 @@ func main() {
 		srs = srs[numOfSrs:] // 取得したデータ数削除する
 		// グラフの画像を作成する
 		if err := createPlotImage(data); err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			msg := linebot.NewTextMessage("睡眠記録のグラフ化ができませんでした")
+			if _, err := bot.PushMessage(id, msg).Do(); err != nil {
+				log.Println(err)
+			}
+			continue
 		}
 		// s3にuploadする
 		sessForS3 := session.Must(session.NewSession(&aws.Config{Region: aws.String("ap-northeast-3")}))
 		uploader := bucket.NewImageUploader(sessForS3, os.Getenv("BUCKET_NAME"), fmt.Sprintf("sleeprecord-plot_%s_%d-%v-%d.png", id, nowJST.Year(), nowJST.Month(), nowJST.Day()))
 		url, err := uploader.UploadImage("sleeprecord-plot.png")
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			msg := linebot.NewTextMessage("システム内でエラーが発生しました")
+			if _, err := bot.PushMessage(id, msg).Do(); err != nil {
+				log.Println(err)
+			}
+			continue
 		}
 		// lineに通知
 		msg := linebot.NewImageMessage(url, url)
 		_, err = bot.PushMessage(id, msg).Do()
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 	}
 }
